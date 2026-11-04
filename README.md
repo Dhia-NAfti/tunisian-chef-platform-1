@@ -23,7 +23,7 @@ A platform for **managing catering services** and _**wedding dinner reservations
 
   ## 4. Installation
 
-git clone <repository-url>
+git clone [git](https://github.com/Dhia-NAfti/tunisian-chef-platform-1.git)
 
 cd tunisian-chef-platform-1
 
