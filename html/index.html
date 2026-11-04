@@ -1,28 +1,3200 @@
-
-<!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>Tunisian Chef Platform 1</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dar El Bey Traiteur | Haute Gastronomie Tunisienne & Événements</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            amber: {
+              50: '#fffbeb',
+              100: '#fef3c7',
+              200: '#fde68a',
+              300: '#fcd34d',
+              400: '#fbbf24',
+              500: '#f59e0b',
+              600: '#d97706',
+              700: '#b45309',
+              800: '#92400e',
+              900: '#78350f',
+            },
+            coral: {
+              50: '#fff1f2',
+              100: '#ffe4e6',
+              200: '#fecdd3',
+              300: '#fda4af',
+              400: '#fb7185',
+              500: '#f43f5e',
+              600: '#e11d48',
+              700: '#be123c',
+            },
+            terracotta: {
+              500: '#c25e3e',
+              600: '#aa4d2f',
+              700: '#8c3c21',
+            },
+            cream: {
+              50: '#fffefb',
+              100: '#fffbf5',
+              200: '#fef6ea',
+              300: '#fdf0dc',
+              400: '#fae3c3',
+            },
+            charcoal: '#1f1917',
+          },
+          fontFamily: {
+            serif: ['"Playfair Display"', 'Georgia', 'serif'],
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            arabic: ['"Amiri"', 'serif'],
+          },
+          boxShadow: {
+            'warm': '0 10px 30px -10px rgba(217, 119, 6, 0.15), 0 4px 6px -2px rgba(244, 63, 94, 0.05)',
+            'warm-lg': '0 20px 40px -15px rgba(217, 119, 6, 0.25)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- React 18 & ReactDOM & Babel -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Canvas Confetti for celebratory actions -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    /* Custom Scrollbar & Warm Patterns */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #fffbf5;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #fcd34d;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #f59e0b;
+    }
+    .zellige-pattern {
+      background-color: #fffbf5;
+      background-image: radial-gradient(#d97706 0.75px, transparent 0.75px), radial-gradient(#fb7185 0.75px, #fffbf5 0.75px);
+      background-size: 30px 30px;
+      background-position: 0 0, 15px 15px;
+      background-opacity: 0.03;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(253, 230, 138, 0.4);
+    }
+    .gradient-warm-text {
+      background: linear-gradient(135deg, #d97706 0%, #ea580c 50%, #f43f5e 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    @keyframes pulse-subtle {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.95; transform: scale(1.02); }
+    }
+    .animate-warm-pulse {
+      animation: pulse-subtle 4s infinite ease-in-out;
+    }
+  </style>
 </head>
-<body>
-    <h1>Welcome to Tunisian Chef Platform</h1>
+<body class="bg-cream-100 text-charcoal font-sans antialiased selection:bg-amber-200 selection:text-amber-900">
+  <div id="root"></div>
 
-    <h2>Technical Discussion Practice</h2>
+  <!-- Main Application Script -->
+  <script type="text/babel">
+    const { useState, useEffect, useMemo, useRef } = React;
 
-    <p>
-        This application is running inside
-        an Nginx Docker container.
-    </p>
+    // --- INITIAL MOCK DATA (Saved to localStorage) ---
+    const INITIAL_DISHES = [
+      {
+        id: 'd1',
+        name: 'Salade Méchouia Royale',
+        nameAr: 'سلاطة مشوية تونسية',
+        category: 'Starters',
+        price: 18,
+        desc: 'Poivrons et tomates grillés au feu de bois, ail, coriandre, thon rouge d’El Haouaria, œufs bio et câpres.',
+        available: true,
+        image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80',
+      },
+      {
+        id: 'd2',
+        name: 'Brik Traditionnelle à l’œuf & Thon',
+        nameAr: 'بريك بالبيض والتن',
+        category: 'Starters',
+        price: 12,
+        desc: 'Feuille de malsouka croustillante artisanale, œuf coulant, thon au naturel, persil frais et câpres parfumées.',
+        available: true,
+        image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80',
+      },
+      {
+        id: 'd3',
+        name: 'Omek Houria aux Noix',
+        nameAr: 'أمك حورية بالجوز',
+        category: 'Starters',
+        price: 15,
+        desc: 'Purée de carottes épicée au carvi et harissa berbère maison, garnie d’olives noires et de noix croquantes.',
+        available: true,
+        image: 'https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?auto=format&fit=crop&w=600&q=80',
+      },
+      {
+        id: 'd4',
+        name: 'Tajine Tunisien au Poulet Fermier',
+        nameAr: 'طاجين تونسي بالدجاج',
+        category: 'Tajines',
+        price: 26,
+        desc: 'Gâteau d’œufs mijoté au poulet fermier, curcuma, fromage râpé affiné et persil du jardin.',
+        available: true,
+        image: 'https://images.unsplash.com/photo-1541518763669-27fef04b14ea?auto=format&fit=crop&w=600&q=80',
+      },
+      {
+        id: 'd5',
+        name: 'Tajine Malsouka de Fête',
+        nameAr: 'طاجين ملسوقة فاخر',
+        category: 'Tajines',
+        price: 32,
+        desc: 'Feuilles de brik superposées, farce généreuse d’agneau confit, amandes effilées et safran pur.',
+        available: true,
+        image: 'https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?auto=format&fit=crop&w=600&q=80',
+      },
+      {
+        id: 'd6',
+        name: 'Couscous Royal à l’Agneau de Lait',
+        nameAr: 'كسكسي تونسي بعلوش الدار',
+        category: 'Mains',
+        price: 58,
+        desc: 'Semoule fine cuite à la vapeur de bouillon épicé, agneau fondant, pois chiches, courgettes et piment doux frit.',
+        available: true,
+        image: 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=600&q=80',
+      },
+      {
+        id: 'd7',
+        name: 'Couscous au Mérou & Fruits de Mer',
+        nameAr: 'كسكسي بالمناني والغلال البحرية',
+        category: 'Mains',
+        price: 75,
+        desc: 'Spécialité des côtes tunisiennes avec darne de mérou noble, crevettes royales, fenouil et piments safranés.',
+        available: true,
+        image: 'https://images.unsplash.com/photo-1534939561126-855b8675edd7?auto=format&fit=crop&w=600&q=80',
+      },
+      {
+        id: 'd8',
+        name: 'Mosli d’Agneau Rôti au Four',
+        nameAr: 'مصلي علوش متبل بالفرن',
+        category: 'Mains',
+        price: 52,
+        desc: 'Gigot ou épaule marinée au romarin sauvage, curcuma et safran, accompagné de pommes de terre confites.',
+        available: true,
+        image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80',
+      },
+      {
+        id: 'd9',
+        name: 'Riz Djerbien à la Vapeur',
+        nameAr: 'أرز جربي بالخضار واللحم',
+        category: 'Mains',
+        price: 35,
+        desc: 'Riz étuvé aux épinards frais, persil, morceaux de veau tendre et foie parfumés à la harissa arabe.',
+        available: true,
+        image: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=600&q=80',
+      },
+      {
+        id: 'd10',
+        name: 'Assortiment Baklawa & Kaak Warka',
+        nameAr: 'تشكيلة بقلاوة وكعك ورقة',
+        category: 'Desserts',
+        price: 38,
+        desc: 'Pâtisseries tunisiennes de haute voltige : pistaches de Gafsa, amandes fines et eau de rose de Zaghouan.',
+        available: true,
+        image: 'https://images.unsplash.com/photo-1519869325930-281384150729?auto=format&fit=crop&w=600&q=80',
+      },
+      {
+        id: 'd11',
+        name: 'Assida Zgougou Festive',
+        nameAr: 'عصيدة الزقوقو الملكية',
+        category: 'Desserts',
+        price: 24,
+        desc: 'Crème soyeuse de graines de pin d’Alep, crème pâtissière délicate à l’eau de géranium, parsemée de fruits secs nobles.',
+        available: true,
+        image: 'https://images.unsplash.com/photo-1579372786545-d24232daf58c?auto=format&fit=crop&w=600&q=80',
+      },
+      {
+        id: 'd12',
+        name: 'Thé Tunisien à la Menthe & Pignons',
+        nameAr: 'شاي تونسي بالبندق',
+        category: 'Drinks',
+        price: 9,
+        desc: 'Thé rouge ambré ou vert mijoté avec menthe fraîche du verger et pignons de pin torréfiés.',
+        available: true,
+        image: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=600&q=80',
+      }
+    ];
 
-    <p>
-        Project: Tunisian Chef Platform 1 
-    </p>
+    const INITIAL_PACKAGES = [
+      {
+        id: 'p1',
+        name: 'Pack Fiançailles & Henné "Carthage"',
+        badge: 'Populaire',
+        pricePerPerson: 75,
+        minGuests: 30,
+        desc: 'Idéal pour soirées intimistes, fiançailles traditionnelles ou réceptions familiales chaleureuses.',
+        includes: [
+          '3 Entrées au choix (Méchouia, Brik, Salade Tunisienne)',
+          'Tajine au choix (Tunisien ou Malsouka)',
+          'Plat principal : Couscous à l’agneau ou Mosli fondant',
+          'Plateau dégustation de pâtisseries tunisiennes',
+          'Service de thé à la menthe et citronnade fraîche'
+        ]
+      },
+      {
+        id: 'p2',
+        name: 'Pack Mariage Grand Prestige "El Bey"',
+        badge: 'Excellence',
+        pricePerPerson: 135,
+        minGuests: 80,
+        desc: 'Le summum du raffinement gastronomique pour noces féeriques et banquets d’envergure.',
+        includes: [
+          'Buffet d’accueil impérial : Salades fines, Mini-briks crevettes, Mignardises salées',
+          'Double Tajine gourmand (Malsouka agneau + Tajine fruits de mer)',
+          'Couscous Royal d’exception (Agneau sélectionné & Cailles farcies)',
+          'Buffet de douceurs : Assida Zgougou, Baklawa pistache, Kaak Warka',
+          'Fontaine de jus de grenade, Thé aux pignons à volonté & Maîtres d’hôtel'
+        ]
+      },
+      {
+        id: 'p3',
+        name: 'Pack Anniversaire & Célébration Familiale',
+        badge: 'Convivial',
+        pricePerPerson: 55,
+        minGuests: 20,
+        desc: 'Un festin généreux et gourmand pour réunir toutes les générations dans la joie.',
+        includes: [
+          'Assortiment de 2 salades traditionnelles & Doigts de Fatma',
+          'Riz Djerbien mijoté à l’ancienne ou Tajine poulet',
+          'Gâteau sur-mesure ou plateaux Makroudh & Samsa',
+          'Cocktails de fruits frais de saison'
+        ]
+      }
+    ];
 
-    <p>
-        Objective: Learn Docker Compose
-        and reproducible deployments.
-    </p>
+    const INITIAL_BOOKINGS = [
+      {
+        id: 'BKG-101',
+        clientName: 'Syrine Ben Salem',
+        phone: '+216 98 420 311',
+        email: 'syrine.bensalem@gmail.com',
+        eventType: 'Mariage',
+        date: '2025-05-24',
+        time: '19:30',
+        location: 'Palais Ennejma Ezzahra, Sidi Bou Saïd',
+        guests: 180,
+        packageName: 'Pack Mariage Grand Prestige "El Bey"',
+        estimatedBudget: 24300,
+        depositPaid: 8000,
+        paymentStatus: 'Acompte versé',
+        status: 'Confirmé',
+        notes: 'Prévoir un buffet sans gluten pour 12 convives. Présentation des plats sur cuivre martelé.',
+        createdAt: '2025-02-10'
+      },
+      {
+        id: 'BKG-102',
+        clientName: 'Dr. Mohamed Larbi Triki',
+        phone: '+216 22 554 890',
+        email: 'triki.ortho@gnet.tn',
+        eventType: 'Fiançailles',
+        date: '2025-04-18',
+        time: '18:00',
+        location: 'Villa Privée, La Marsa',
+        guests: 65,
+        packageName: 'Pack Fiançailles & Henné "Carthage"',
+        estimatedBudget: 4875,
+        depositPaid: 1500,
+        paymentStatus: 'Acompte versé',
+        status: 'En préparation',
+        notes: 'Service thé aux amandes & pignons tout au long de la soirée.',
+        createdAt: '2025-02-12'
+      },
+      {
+        id: 'BKG-103',
+        clientName: 'Amira Khemir',
+        phone: '+216 50 112 344',
+        email: 'amira.khemir@outlook.com',
+        eventType: 'Anniversaire',
+        date: '2025-04-05',
+        time: '20:00',
+        location: 'Rooftop Les Berges du Lac 2',
+        guests: 40,
+        packageName: 'Pack Anniversaire & Célébration Familiale',
+        estimatedBudget: 2200,
+        depositPaid: 0,
+        paymentStatus: 'En attente d’acompte',
+        status: 'Devis envoyé',
+        notes: 'Souhaite ajouter 40 mini Assida Zgougou en verrines.',
+        createdAt: '2025-02-15'
+      },
+      {
+        id: 'BKG-104',
+        clientName: 'Khaled Jaziri (Directeur BNA)',
+        phone: '+216 97 889 001',
+        email: 'khaled.jaziri@bna.tn',
+        eventType: 'Dîner d’Entreprise & Gala',
+        date: '2025-05-02',
+        time: '20:30',
+        location: 'Hôtel Le Pavillon, Gammarth',
+        guests: 110,
+        packageName: 'Sur Mesure',
+        estimatedBudget: 11500,
+        depositPaid: 0,
+        paymentStatus: 'Devis non validé',
+        status: 'Nouvelle demande',
+        notes: 'Banquet de fin d’année avec show culinaire en direct par le Chef Karim.',
+        createdAt: '2025-02-17'
+      }
+    ];
+
+    const INITIAL_CUSTOMERS = [
+      {
+        id: 'c1',
+        name: 'Syrine Ben Salem',
+        phone: '+216 98 420 311',
+        email: 'syrine.bensalem@gmail.com',
+        city: 'Sidi Bou Saïd',
+        totalBookings: 2,
+        totalSpent: 28300,
+        dietary: 'Convives sans gluten (famille proche)',
+        notes: 'Très attachée aux recettes sfaxiennes et au dressage raffiné.'
+      },
+      {
+        id: 'c2',
+        name: 'Dr. Mohamed Larbi Triki',
+        phone: '+216 22 554 890',
+        email: 'triki.ortho@gnet.tn',
+        city: 'La Marsa',
+        totalBookings: 1,
+        totalSpent: 4875,
+        dietary: 'Classique',
+        notes: 'Client référé par Madame Triki (Amie du Chef).'
+      },
+      {
+        id: 'c3',
+        name: 'Amira Khemir',
+        phone: '+216 50 112 344',
+        email: 'amira.khemir@outlook.com',
+        city: 'Les Berges du Lac',
+        totalBookings: 1,
+        totalSpent: 2200,
+        dietary: 'Moins d’huile d’olive dans le couscous',
+        notes: 'Exigeante sur les horaires de service.'
+      },
+      {
+        id: 'c4',
+        name: 'Khaled Jaziri',
+        phone: '+216 97 889 001',
+        email: 'khaled.jaziri@bna.tn',
+        city: 'Gammarth',
+        totalBookings: 3,
+        totalSpent: 34200,
+        dietary: 'Poissons et viandes blanches privilégiés',
+        notes: 'Facturation société obligatoire.'
+      }
+    ];
+
+    const INITIAL_KITCHEN_TASKS = [
+      { id: 'k1', eventId: 'BKG-102', task: 'Torréfaction douce de 5 kg de pignons pour le thé', done: true, station: 'Boissons & Pâtisserie' },
+      { id: 'k2', eventId: 'BKG-102', task: 'Préparation de la farce d’agneau pour 65 Tajines Malsouka', done: true, station: 'Chaud & Tajines' },
+      { id: 'k3', eventId: 'BKG-102', task: 'Achat de 15 kg de dorade et mérou frais au port de La Goulette', done: false, station: 'Achats & Marché' },
+      { id: 'k4', eventId: 'BKG-101', task: 'Commander 25 kg de semoule fine extra de Béja pour le Couscous Royal', done: false, station: 'Épicerie & Sec' },
+      { id: 'k5', eventId: 'BKG-101', task: 'Vérification de la vaisselle en céramique de Nabeul et cuivres de Tunis', done: false, station: 'Matériel & Service' },
+    ];
+
+    // --- MAIN APP COMPONENT ---
+    function App() {
+      // Navigation state: 'public' or 'admin'
+      const [viewMode, setViewMode] = useState('public'); // 'public' | 'admin'
+      const [publicPage, setPublicPage] = useState('home'); // 'home' | 'services' | 'menu' | 'packages' | 'gallery' | 'about' | 'contact'
+      const [adminTab, setAdminTab] = useState('overview'); // 'overview' | 'calendar' | 'bookings' | 'customers' | 'menu' | 'kitchen' | 'quotes'
+      const [language, setLanguage] = useState('fr'); // 'fr' | 'ar'
+
+      // Persistent App Data
+      const [dishes, setDishes] = useState(() => {
+        const saved = localStorage.getItem('dar_dishes');
+        return saved ? JSON.parse(saved) : INITIAL_DISHES;
+      });
+      const [packages, setPackages] = useState(() => {
+        const saved = localStorage.getItem('dar_packages');
+        return saved ? JSON.parse(saved) : INITIAL_PACKAGES;
+      });
+      const [bookings, setBookings] = useState(() => {
+        const saved = localStorage.getItem('dar_bookings');
+        return saved ? JSON.parse(saved) : INITIAL_BOOKINGS;
+      });
+      const [customers, setCustomers] = useState(() => {
+        const saved = localStorage.getItem('dar_customers');
+        return saved ? JSON.parse(saved) : INITIAL_CUSTOMERS;
+      });
+      const [kitchenTasks, setKitchenTasks] = useState(() => {
+        const saved = localStorage.getItem('dar_tasks');
+        return saved ? JSON.parse(saved) : INITIAL_KITCHEN_TASKS;
+      });
+
+      // Notification Toast State
+      const [toast, setToast] = useState(null);
+
+      const showToast = (message, type = 'success') => {
+        setToast({ message, type });
+        setTimeout(() => setToast(null), 3500);
+      };
+
+      // Save to localStorage when changed
+      useEffect(() => {
+        localStorage.setItem('dar_dishes', JSON.stringify(dishes));
+      }, [dishes]);
+      useEffect(() => {
+        localStorage.setItem('dar_bookings', JSON.stringify(bookings));
+      }, [bookings]);
+      useEffect(() => {
+        localStorage.setItem('dar_customers', JSON.stringify(customers));
+      }, [customers]);
+      useEffect(() => {
+        localStorage.setItem('dar_tasks', JSON.stringify(kitchenTasks));
+      }, [kitchenTasks]);
+
+      // Re-trigger Lucide icons on DOM update
+      useEffect(() => {
+        if (window.lucide) {
+          window.lucide.createIcons();
+        }
+      }, [viewMode, publicPage, adminTab, bookings, dishes, kitchenTasks, language]);
+
+      // Add a booking from public quote form
+      const handleAddBooking = (newBookingData) => {
+        const newBooking = {
+          id: `BKG-${Math.floor(100 + Math.random() * 900)}`,
+          ...newBookingData,
+          status: 'Nouvelle demande',
+          createdAt: new Date().toISOString().split('T')[0],
+          depositPaid: 0,
+          paymentStatus: 'En attente d’acompte'
+        };
+        const updated = [newBooking, ...bookings];
+        setBookings(updated);
+
+        // Also check if client exists in customer list, if not add
+        const exists = customers.find(c => c.email.toLowerCase() === newBookingData.email.toLowerCase());
+        if (!exists) {
+          const newCust = {
+            id: `c${Date.now()}`,
+            name: newBookingData.clientName,
+            phone: newBookingData.phone,
+            email: newBookingData.email,
+            city: newBookingData.location || 'Tunis',
+            totalBookings: 1,
+            totalSpent: Number(newBookingData.estimatedBudget) || 0,
+            dietary: 'À préciser',
+            notes: `Formulaire public (${newBookingData.eventType})`
+          };
+          setCustomers(prev => [newCust, ...prev]);
+        }
+
+        if (window.confetti) {
+          window.confetti({ particleCount: 80, spread: 60, origin: { y: 0.7 } });
+        }
+        showToast('Votre demande de devis a été transmise au Chef Karim avec succès !', 'success');
+      };
+
+      return (
+        <div className={`min-h-screen flex flex-col font-sans ${language === 'ar' ? 'font-arabic text-right' : ''}`} dir={language === 'ar' ? 'rtl' : 'ltr'}>
+          {/* Top Universal Mode Switcher & Language Bar */}
+          <header className="bg-charcoal text-amber-100 text-xs py-2 px-4 border-b border-amber-900/40 sticky top-0 z-50 flex items-center justify-between shadow-md">
+            <div className="flex items-center space-x-3 rtl:space-x-reverse">
+              <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span className="font-medium tracking-wide">
+                {language === 'ar' ? 'دار الباي للضيافة التونسية الفاخرة' : 'Dar El Bey Traiteur • Chef Karim Ben Amor'}
+              </span>
+              <span className="hidden md:inline text-amber-400/60">|</span>
+              <span className="hidden md:inline text-amber-200/80">
+                {language === 'ar' ? 'تونس - قرطاج - قمرت - سيدي بوسعيد' : 'Grand Tunis & Réceptions Privées en Tunisie'}
+              </span>
+            </div>
+
+            <div className="flex items-center space-x-2 sm:space-x-4 rtl:space-x-reverse">
+              {/* Language Switch */}
+              <div className="bg-stone-800 rounded-lg p-0.5 flex border border-amber-500/20 text-xs">
+                <button
+                  onClick={() => setLanguage('fr')}
+                  className={`px-2 py-0.5 rounded transition ${language === 'fr' ? 'bg-amber-600 text-white font-bold' : 'text-stone-300 hover:text-white'}`}
+                >
+                  FR
+                </button>
+                <button
+                  onClick={() => setLanguage('ar')}
+                  className={`px-2 py-0.5 rounded transition ${language === 'ar' ? 'bg-amber-600 text-white font-bold' : 'text-stone-300 hover:text-white'}`}
+                >
+                  عربي
+                </button>
+              </div>
+
+              {/* View Switcher: Public Site vs Admin Dashboard */}
+              <div className="flex rounded-lg bg-stone-800/90 p-0.5 border border-amber-400/30">
+                <button
+                  onClick={() => setViewMode('public')}
+                  className={`flex items-center space-x-1.5 rtl:space-x-reverse px-3 py-1 rounded-md text-xs font-semibold transition ${
+                    viewMode === 'public'
+                      ? 'bg-gradient-to-r from-amber-600 to-amber-700 text-white shadow'
+                      : 'text-stone-300 hover:text-amber-300'
+                  }`}
+                >
+                  <i data-lucide="globe" className="w-3.5 h-3.5"></i>
+                  <span>{language === 'ar' ? 'الموقع العام' : 'Site Public'}</span>
+                </button>
+                <button
+                  onClick={() => setViewMode('admin')}
+                  className={`flex items-center space-x-1.5 rtl:space-x-reverse px-3 py-1 rounded-md text-xs font-semibold transition relative ${
+                    viewMode === 'admin'
+                      ? 'bg-gradient-to-r from-coral-600 to-amber-600 text-white shadow'
+                      : 'text-stone-300 hover:text-amber-300'
+                  }`}
+                >
+                  <i data-lucide="layout-dashboard" className="w-3.5 h-3.5"></i>
+                  <span>{language === 'ar' ? 'لوحة تحكم الشيف' : 'Espace Chef (Admin)'}</span>
+                  {bookings.filter(b => b.status === 'Nouvelle demande').length > 0 && (
+                    <span className="w-2 h-2 rounded-full bg-coral-500 ring-2 ring-stone-900 animate-ping absolute -top-0.5 -right-0.5"></span>
+                  )}
+                </button>
+              </div>
+            </div>
+          </header>
+
+          {/* Toast Notification */}
+          {toast && (
+            <div className="fixed bottom-6 right-6 z-50 flex items-center space-x-3 rtl:space-x-reverse bg-charcoal text-white px-5 py-3.5 rounded-xl shadow-2xl border-l-4 border-amber-500 animate-bounce">
+              <i data-lucide={toast.type === 'success' ? 'check-circle' : 'info'} className="text-amber-400 w-5 h-5"></i>
+              <p className="text-sm font-medium">{toast.message}</p>
+            </div>
+          )}
+
+          {/* RENDER VIEW: Public Website or Admin Dashboard */}
+          {viewMode === 'public' ? (
+            <PublicWebsite
+              page={publicPage}
+              setPage={setPublicPage}
+              dishes={dishes}
+              packages={packages}
+              onNewBooking={handleAddBooking}
+              language={language}
+              openAdmin={() => setViewMode('admin')}
+            />
+          ) : (
+            <AdminDashboard
+              currentTab={adminTab}
+              setTab={setAdminTab}
+              dishes={dishes}
+              setDishes={setDishes}
+              packages={packages}
+              setPackages={setPackages}
+              bookings={bookings}
+              setBookings={setBookings}
+              customers={customers}
+              setCustomers={setCustomers}
+              kitchenTasks={kitchenTasks}
+              setKitchenTasks={setKitchenTasks}
+              showToast={showToast}
+              language={language}
+              onReturnToPublic={() => setViewMode('public')}
+            />
+          )}
+        </div>
+      );
+    }
+
+    // ==========================================
+    // 1. PUBLIC WEBSITE COMPONENT
+    // ==========================================
+    function PublicWebsite({ page, setPage, dishes, packages, onNewBooking, language, openAdmin }) {
+      const [quoteModalOpen, setQuoteModalOpen] = useState(false);
+      const [selectedCategory, setSelectedCategory] = useState('All');
+
+      const isAr = language === 'ar';
+
+      const filteredDishes = useMemo(() => {
+        if (selectedCategory === 'All') return dishes;
+        return dishes.filter(d => d.category === selectedCategory);
+      }, [dishes, selectedCategory]);
+
+      return (
+        <div className="flex-1 flex flex-col bg-cream-50 zellige-pattern min-h-screen">
+          {/* Main Navigation */}
+          <nav className="bg-white/95 backdrop-blur-md sticky top-9 z-40 border-b border-amber-200 shadow-sm">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+              {/* Brand Logo */}
+              <div className="flex items-center space-x-3 rtl:space-x-reverse cursor-pointer" onClick={() => setPage('home')}>
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-600 via-amber-500 to-coral-500 flex items-center justify-center text-white shadow-warm transform rotate-1">
+                  <span className="font-serif font-black text-2xl tracking-tighter">DB</span>
+                </div>
+                <div>
+                  <h1 className="font-serif text-2xl font-bold tracking-tight text-charcoal">
+                    Dar El Bey <span className="text-amber-600 font-sans text-xs font-semibold tracking-widest uppercase ml-1 block sm:inline">Traiteur</span>
+                  </h1>
+                  <p className="text-[11px] text-amber-800/80 uppercase tracking-widest font-semibold">
+                    {isAr ? 'فن الطبخ التونسي الرفيع' : 'Gastronomie Tunisienne d’Honneur'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Desktop Nav Links */}
+              <div className="hidden lg:flex items-center space-x-8 rtl:space-x-reverse text-sm font-medium text-stone-700">
+                {[
+                  { id: 'home', label: isAr ? 'الرئيسية' : 'Accueil' },
+                  { id: 'services', label: isAr ? 'خدماتنا' : 'Services' },
+                  { id: 'menu', label: isAr ? 'قائمتنا' : 'Nos Menus' },
+                  { id: 'packages', label: isAr ? 'الباقات' : 'Formules Clé en Main' },
+                  { id: 'gallery', label: isAr ? 'معرض الصور' : 'Galerie' },
+                  { id: 'about', label: isAr ? 'عن الشيف' : 'Le Chef' },
+                  { id: 'contact', label: isAr ? 'اتصل بنا' : 'Contact' },
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => setPage(item.id)}
+                    className={`transition pb-1 ${
+                      page === item.id
+                        ? 'text-amber-700 font-bold border-b-2 border-amber-600'
+                        : 'hover:text-amber-600 text-stone-700'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center space-x-3 rtl:space-x-reverse">
+                <button
+                  onClick={() => setQuoteModalOpen(true)}
+                  className="bg-gradient-to-r from-amber-600 via-amber-500 to-coral-500 text-white px-5 py-2.5 rounded-xl font-semibold text-xs sm:text-sm shadow-warm hover:opacity-95 transition transform active:scale-95 flex items-center space-x-2 rtl:space-x-reverse"
+                >
+                  <i data-lucide="sparkles" className="w-4 h-4"></i>
+                  <span>{isAr ? 'طلب عرض أسعار' : 'Demander un Devis'}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Mobile Scrollable Menu Bar */}
+            <div className="lg:hidden flex overflow-x-auto px-4 py-2 space-x-4 rtl:space-x-reverse border-t border-amber-100 bg-amber-50/50 text-xs">
+              {['home', 'services', 'menu', 'packages', 'gallery', 'about', 'contact'].map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => setPage(tab)}
+                  className={`whitespace-nowrap px-3 py-1 rounded-full ${
+                    page === tab ? 'bg-amber-600 text-white font-medium' : 'text-stone-600'
+                  }`}
+                >
+                  {tab === 'home' && (isAr ? 'الرئيسية' : 'Accueil')}
+                  {tab === 'services' && (isAr ? 'خدمات' : 'Services')}
+                  {tab === 'menu' && (isAr ? 'المنيو' : 'Menus')}
+                  {tab === 'packages' && (isAr ? 'الباقات' : 'Formules')}
+                  {tab === 'gallery' && (isAr ? 'الصور' : 'Galerie')}
+                  {tab === 'about' && (isAr ? 'الشيف' : 'Le Chef')}
+                  {tab === 'contact' && (isAr ? 'اتصال' : 'Contact')}
+                </button>
+              ))}
+            </div>
+          </nav>
+
+          {/* VIEW SWITCHER IN PUBLIC SITE */}
+          {page === 'home' && (
+            <PublicHome
+              setPage={setPage}
+              dishes={dishes}
+              packages={packages}
+              onOpenQuote={() => setQuoteModalOpen(true)}
+              isAr={isAr}
+            />
+          )}
+          {page === 'services' && <PublicServices onOpenQuote={() => setQuoteModalOpen(true)} isAr={isAr} />}
+          {page === 'menu' && (
+            <PublicMenu
+              dishes={filteredDishes}
+              selectedCategory={selectedCategory}
+              setSelectedCategory={setSelectedCategory}
+              onOpenQuote={() => setQuoteModalOpen(true)}
+              isAr={isAr}
+            />
+          )}
+          {page === 'packages' && (
+            <PublicPackages
+              packages={packages}
+              onOpenQuote={() => setQuoteModalOpen(true)}
+              isAr={isAr}
+            />
+          )}
+          {page === 'gallery' && <PublicGallery isAr={isAr} />}
+          {page === 'about' && <PublicAbout onOpenQuote={() => setQuoteModalOpen(true)} isAr={isAr} />}
+          {page === 'contact' && <PublicContact onNewBooking={onNewBooking} isAr={isAr} />}
+
+          {/* FOOTER */}
+          <footer className="bg-charcoal text-cream-200 mt-auto border-t-4 border-amber-500 pt-14 pb-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+              <div className="space-y-4">
+                <div className="flex items-center space-x-3 rtl:space-x-reverse">
+                  <div className="w-10 h-10 rounded-xl bg-amber-600 flex items-center justify-center text-white font-serif font-bold text-xl">
+                    DB
+                  </div>
+                  <span className="font-serif text-xl font-bold tracking-tight text-white">Dar El Bey Traiteur</span>
+                </div>
+                <p className="text-xs text-stone-400 leading-relaxed">
+                  L’alliance subtile entre héritage culinaire beylical et raffinement gastronomique contemporain pour vos plus grands événements en Tunisie.
+                </p>
+                <div className="flex space-x-3 rtl:space-x-reverse text-amber-400 text-sm">
+                  <span className="p-2 rounded-full bg-stone-800 hover:bg-amber-600 cursor-pointer transition"><i data-lucide="instagram" className="w-4 h-4"></i></span>
+                  <span className="p-2 rounded-full bg-stone-800 hover:bg-amber-600 cursor-pointer transition"><i data-lucide="facebook" className="w-4 h-4"></i></span>
+                  <span className="p-2 rounded-full bg-stone-800 hover:bg-amber-600 cursor-pointer transition"><i data-lucide="phone-call" className="w-4 h-4"></i></span>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-serif text-white font-semibold mb-4 text-base tracking-wide border-b border-stone-700 pb-2">
+                  {isAr ? 'المناسبات والاحتفالات' : 'Événements & Banquets'}
+                </h4>
+                <ul className="text-xs space-y-2.5 text-stone-300">
+                  <li className="hover:text-amber-400 cursor-pointer">Mariages Princiers & Outia</li>
+                  <li className="hover:text-amber-400 cursor-pointer">Fiançailles & Dîners d’Honneur</li>
+                  <li className="hover:text-amber-400 cursor-pointer">Banquet d’Entreprise & Galas</li>
+                  <li className="hover:text-amber-400 cursor-pointer">Célébrations de l’Aïd & Mawlid</li>
+                  <li className="hover:text-amber-400 cursor-pointer">Chef Privé à Domicile</li>
+                </ul>
+              </div>
+
+              <div>
+                <h4 className="font-serif text-white font-semibold mb-4 text-base tracking-wide border-b border-stone-700 pb-2">
+                  {isAr ? 'التخصصات التونسية' : 'Spécialités Beylicales'}
+                </h4>
+                <ul className="text-xs space-y-2.5 text-stone-300">
+                  <li>Couscous Royal à l’Agneau & Cailles</li>
+                  <li>Tajine Malsouka aux Amandes & Safran</li>
+                  <li>Mérou de Méditerranée au Four</li>
+                  <li>Assida Zgougou & Douceurs de Zaghouan</li>
+                  <li>Salade Méchouia grillée au feu de bois</li>
+                </ul>
+              </div>
+
+              <div className="space-y-3">
+                <h4 className="font-serif text-white font-semibold mb-4 text-base tracking-wide border-b border-stone-700 pb-2">
+                  {isAr ? 'تواصل مع الإدارة' : 'Laboratoire & Contact'}
+                </h4>
+                <p className="text-xs text-stone-300 flex items-start space-x-2 rtl:space-x-reverse">
+                  <i data-lucide="map-pin" className="w-4 h-4 text-amber-500 shrink-0 mt-0.5"></i>
+                  <span>Avenue Habib Bourguiba, Carthage Présidence, Tunisie</span>
+                </p>
+                <p className="text-xs text-stone-300 flex items-center space-x-2 rtl:space-x-reverse">
+                  <i data-lucide="phone" className="w-4 h-4 text-amber-500 shrink-0"></i>
+                  <span>+216 71 740 890 / +216 98 220 110</span>
+                </p>
+                <p className="text-xs text-stone-300 flex items-center space-x-2 rtl:space-x-reverse">
+                  <i data-lucide="mail" className="w-4 h-4 text-amber-500 shrink-0"></i>
+                  <span>contact@darelbeytraiteur.tn</span>
+                </p>
+                <button
+                  onClick={openAdmin}
+                  className="mt-4 text-[11px] text-amber-400/80 hover:text-amber-300 underline block"
+                >
+                  Accès réservé : Administration du Chef Karim
+                </button>
+              </div>
+            </div>
+
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 border-t border-stone-800 text-center text-xs text-stone-500 flex flex-col sm:flex-row justify-between items-center">
+              <p>© {new Date().getFullYear()} Dar El Bey Traiteur. Tous droits réservés. Gastronomie Tunisienne.</p>
+              <p className="mt-2 sm:mt-0 font-medium text-amber-600/90">
+                Prix indicatifs en Dinars Tunisiens (TND) • Fait avec passion
+              </p>
+            </div>
+          </footer>
+
+          {/* QUOTE REQUEST MODAL */}
+          {quoteModalOpen && (
+            <QuoteRequestModal
+              onClose={() => setQuoteModalOpen(false)}
+              packages={packages}
+              onSubmit={(formData) => {
+                onNewBooking(formData);
+                setQuoteModalOpen(false);
+              }}
+              isAr={isAr}
+            />
+          )}
+        </div>
+      );
+    }
+
+    // --- PUBLIC SUB-PAGES ---
+    function PublicHome({ setPage, dishes, packages, onOpenQuote, isAr }) {
+      return (
+        <div className="space-y-20 pb-20">
+          {/* HERO SECTION */}
+          <section className="relative overflow-hidden pt-12 pb-24 md:py-28 bg-gradient-to-b from-amber-50 via-cream-100 to-cream-50">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                
+                {/* Hero Text */}
+                <div className="lg:col-span-7 space-y-6 text-center lg:text-left rtl:lg:text-right">
+                  <div className="inline-flex items-center space-x-2 rtl:space-x-reverse px-3.5 py-1.5 rounded-full bg-amber-100 border border-amber-300 text-amber-900 text-xs font-semibold shadow-sm">
+                    <span className="flex h-2 w-2 rounded-full bg-coral-500"></span>
+                    <span>{isAr ? 'الضيافة التونسية الأصيلة بلمسة عصرية' : 'Traiteur Haut de Gamme • Grand Tunis & Régions'}</span>
+                  </div>
+
+                  <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-black text-charcoal tracking-tight leading-[1.15]">
+                    L’Excellence de la Gastronomie <span className="gradient-warm-text">Tunisienne</span> pour Vos Grands Jours.
+                  </h1>
+
+                  <p className="text-base sm:text-lg text-stone-600 max-w-2xl leading-relaxed mx-auto lg:mx-0">
+                    Mariages de rêve, fiançailles prestigieuses, réceptions privées et banquets diplomatiques. Sous la direction du <strong>Chef Karim Ben Amor</strong>, offrez à vos invités une immersion inoubliable au cœur des saveurs beylicales.
+                  </p>
+
+                  <div className="pt-2 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+                    <button
+                      onClick={onOpenQuote}
+                      className="w-full sm:w-auto bg-gradient-to-r from-amber-600 via-amber-500 to-coral-500 text-white px-8 py-4 rounded-xl font-bold text-base shadow-warm hover:shadow-warm-lg hover:scale-105 transition transform active:scale-95 flex items-center justify-center space-x-3 rtl:space-x-reverse"
+                    >
+                      <i data-lucide="calendar-check" className="w-5 h-5"></i>
+                      <span>{isAr ? 'احجز موعدك أو اطلب عرض أسعار' : 'Demander un Devis Gratuit'}</span>
+                    </button>
+                    <button
+                      onClick={() => setPage('menu')}
+                      className="w-full sm:w-auto bg-white border border-amber-300 hover:border-amber-500 text-stone-800 px-7 py-4 rounded-xl font-semibold text-base shadow-sm hover:bg-amber-50/50 transition flex items-center justify-center space-x-2 rtl:space-x-reverse"
+                    >
+                      <i data-lucide="utensils" className="w-5 h-5 text-amber-600"></i>
+                      <span>{isAr ? 'استكشف قائمة الأطباق' : 'Découvrir la Carte'}</span>
+                    </button>
+                  </div>
+
+                  {/* Trust Badges */}
+                  <div className="pt-6 grid grid-cols-3 gap-4 border-t border-amber-200/80 text-center sm:text-left rtl:sm:text-right">
+                    <div>
+                      <p className="font-serif text-2xl font-black text-amber-700">15+ Ans</p>
+                      <p className="text-xs text-stone-500">D’Art Culinaire & Passion</p>
+                    </div>
+                    <div>
+                      <p className="font-serif text-2xl font-black text-coral-600">450+</p>
+                      <p className="text-xs text-stone-500">Mariages & Galas Célébrés</p>
+                    </div>
+                    <div>
+                      <p className="font-serif text-2xl font-black text-amber-800">100%</p>
+                      <p className="text-xs text-stone-500">Ingrédients Nobles & Locaux</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Hero Visual Collage */}
+                <div className="lg:col-span-5 relative">
+                  <div className="relative mx-auto max-w-md lg:max-w-none">
+                    {/* Glowing blur */}
+                    <div className="absolute -inset-4 bg-gradient-to-tr from-amber-400 via-coral-300 to-amber-200 rounded-3xl opacity-30 blur-2xl"></div>
+
+                    {/* Main Featured Photo */}
+                    <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white aspect-[4/5]">
+                      <img
+                        src="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80"
+                        alt="Buffet Tunisien Traditionnel"
+                        className="w-full h-full object-cover transform hover:scale-105 transition duration-700"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-transparent to-transparent"></div>
+                      
+                      {/* Floating Card On Hero */}
+                      <div className="absolute bottom-6 left-6 right-6 glass-card p-4 rounded-2xl shadow-xl">
+                        <div className="flex items-center space-x-3 rtl:space-x-reverse">
+                          <img
+                            src="https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=200&q=80"
+                            alt="Chef Karim"
+                            className="w-12 h-12 rounded-full object-cover border-2 border-amber-500"
+                          />
+                          <div>
+                            <h4 className="font-serif font-bold text-sm text-charcoal">Chef Karim Ben Amor</h4>
+                            <p className="text-xs text-amber-700">Maître Artisan Traiteur Diplômé de Tunis & Paris</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Secondary Floating Badge */}
+                    <div className="absolute -top-6 -left-6 bg-white border border-amber-200 rounded-2xl p-3 shadow-warm-lg hidden sm:flex items-center space-x-3 rtl:space-x-reverse">
+                      <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center">
+                        <i data-lucide="award" className="w-5 h-5"></i>
+                      </div>
+                      <div>
+                        <p className="text-[11px] uppercase tracking-wider text-stone-400 font-bold">Label Qualité</p>
+                        <p className="text-xs font-bold text-charcoal">Saveurs Authentiques</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </section>
+
+          {/* CHEF PRESENTATION & PHILOSOPHY */}
+          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="bg-white rounded-3xl p-8 sm:p-12 border border-amber-200 shadow-warm grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+              <div className="lg:col-span-5 order-2 lg:order-1">
+                <img
+                  src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=800&q=80"
+                  alt="Préparation gastronomique"
+                  className="rounded-2xl shadow-lg w-full h-80 object-cover border-2 border-amber-100"
+                />
+              </div>
+              <div className="lg:col-span-7 order-1 lg:order-2 space-y-4">
+                <span className="text-xs font-bold uppercase tracking-widest text-coral-600 bg-coral-50 px-3 py-1 rounded-full border border-coral-200">
+                  {isAr ? 'قصة نجاح وشغف' : 'L’Esprit de Notre Maison'}
+                </span>
+                <h2 className="font-serif text-3xl sm:text-4xl font-bold text-charcoal">
+                  L’Héritage Beylical Sublimé par un Savoir-Faire Moderne
+                </h2>
+                <p className="text-sm sm:text-base text-stone-600 leading-relaxed">
+                  « La cuisine tunisienne n’est pas simplement un repas, c’est un serment de générosité, une fête des sens où l’eau de rose de Zaghouan rencontre le safran de Kairouan et l’huile d’olive d’El Jem. Chez Dar El Bey, chaque banquet est orchestré sur-mesure pour raconter l’histoire de votre famille. »
+                </p>
+                <div className="pt-2 flex items-center space-x-6 rtl:space-x-reverse">
+                  <div className="font-serif italic text-amber-800 text-lg font-bold">
+                    — Karim Ben Amor, Chef Fondateur
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* SERVICES SHOWCASE */}
+          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+            <div className="text-center max-w-3xl mx-auto space-y-3">
+              <span className="text-xs font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
+                Nos Prestations
+              </span>
+              <h2 className="font-serif text-3xl sm:text-4xl font-bold text-charcoal">
+                Des Services Pensés Pour Chaque Instant Mémorable
+              </h2>
+              <p className="text-sm text-stone-500">
+                Du cocktail intime de 20 convives aux grands dîners nuptiaux de 400 invités, notre brigade déploie son excellence.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[
+                {
+                  title: 'Mariages & Outia Féeriques',
+                  icon: 'heart-handshake',
+                  desc: 'Banquets royaux avec service à table ou buffet prestigieux, tajines d’apparat et couscous d’honneur.',
+                  tag: 'Sur Devis'
+                },
+                {
+                  title: 'Fiançailles & Henné Intimes',
+                  icon: 'sparkles',
+                  desc: 'Ambiance chaleureuse aux lueurs des lanternes traditionnelles, briks dorées et fontaines de citronnade.',
+                  tag: 'Dès 30 pers.'
+                },
+                {
+                  title: 'Anniversaires & Célébrations',
+                  icon: 'cake',
+                  desc: 'Buffets de salades fraîches, tajines fondants et créations sucrées raffinées.',
+                  tag: 'Formules Clés en Main'
+                },
+                {
+                  title: 'Fêtes Religieuses & Mawlid',
+                  icon: 'moon',
+                  desc: 'Assida Zgougou d’exception selon la pure recette tunisoise et couscous traditionnel de l’Aïd.',
+                  tag: 'Saisonnier'
+                },
+                {
+                  title: 'Cocktails & Réceptions Corporate',
+                  icon: 'briefcase',
+                  desc: 'Dîners de gala, déjeuners de directoire et buffets d’affaires dans les plus beaux lieux de Tunisie.',
+                  tag: 'Facturation Société'
+                },
+                {
+                  title: 'Chef à Domicile & Dîners Privés',
+                  icon: 'utensils-crossed',
+                  desc: 'Le Chef Karim cuisine directement dans vos cuisines pour un voyage sensoriel exclusif.',
+                  tag: 'Expérience VIP'
+                }
+              ].map((srv, idx) => (
+                <div key={idx} className="bg-white rounded-2xl p-7 border border-amber-200/80 shadow-warm hover:shadow-warm-lg hover:border-amber-400 transition transform hover:-translate-y-1 flex flex-col justify-between">
+                  <div className="space-y-4">
+                    <div className="w-12 h-12 rounded-xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center">
+                      <i data-lucide={srv.icon} className="w-6 h-6"></i>
+                    </div>
+                    <h3 className="font-serif text-xl font-bold text-charcoal">{srv.title}</h3>
+                    <p className="text-xs sm:text-sm text-stone-500 leading-relaxed">{srv.desc}</p>
+                  </div>
+                  <div className="pt-6 mt-6 border-t border-amber-100 flex items-center justify-between">
+                    <span className="text-xs font-semibold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md">
+                      {srv.tag}
+                    </span>
+                    <button
+                      onClick={onOpenQuote}
+                      className="text-xs font-bold text-coral-600 hover:text-coral-700 flex items-center space-x-1 rtl:space-x-reverse"
+                    >
+                      <span>Réserver</span>
+                      <i data-lucide="chevron-right" className="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* FEATURED DISHES PREVIEW */}
+          <section className="bg-amber-900/5 py-16 border-y border-amber-200/60">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+              <div className="flex flex-col sm:flex-row justify-between items-end gap-4">
+                <div>
+                  <span className="text-xs font-bold uppercase tracking-widest text-amber-700">Sélection Signature</span>
+                  <h2 className="font-serif text-3xl font-bold text-charcoal">Les Incontournables de Notre Carte</h2>
+                </div>
+                <button
+                  onClick={() => setPage('menu')}
+                  className="text-amber-800 hover:text-amber-900 font-bold text-sm flex items-center space-x-1 rtl:space-x-reverse underline underline-offset-4"
+                >
+                  <span>Voir tous les 12 plats détaillés</span>
+                  <i data-lucide="arrow-right" className="w-4 h-4"></i>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {dishes.slice(0, 4).map(dish => (
+                  <div key={dish.id} className="bg-white rounded-2xl overflow-hidden border border-amber-200 shadow-warm hover:shadow-warm-lg transition flex flex-col">
+                    <div className="relative h-48 overflow-hidden">
+                      <img src={dish.image} alt={dish.name} className="w-full h-full object-cover transform hover:scale-110 transition duration-500" />
+                      <div className="absolute top-3 right-3 bg-white/95 px-2.5 py-1 rounded-full text-xs font-black text-amber-800 shadow">
+                        {dish.price} TND
+                      </div>
+                    </div>
+                    <div className="p-5 flex-1 flex flex-col justify-between">
+                      <div>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600">{dish.category}</span>
+                        <h4 className="font-serif font-bold text-base text-charcoal mt-1">{dish.name}</h4>
+                        <p className="text-xs text-stone-500 mt-2 line-clamp-2 leading-relaxed">{dish.desc}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* PACKAGES PREVIEW */}
+          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+            <div className="text-center max-w-2xl mx-auto space-y-3">
+              <span className="text-xs font-bold uppercase tracking-widest text-coral-600 bg-coral-50 px-3 py-1 rounded-full border border-coral-200">
+                Formules Traiteur
+              </span>
+              <h2 className="font-serif text-3xl sm:text-4xl font-bold text-charcoal">
+                Nos Forfaits Clé en Main les Plus Prisés
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {packages.map(pkg => (
+                <div key={pkg.id} className={`bg-white rounded-3xl p-8 border ${pkg.id === 'p2' ? 'border-amber-400 ring-2 ring-amber-400 shadow-warm-lg' : 'border-amber-200 shadow-warm'} flex flex-col justify-between relative`}>
+                  {pkg.badge && (
+                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-600 to-coral-500 text-white text-[11px] font-black uppercase tracking-wider px-4 py-1 rounded-full shadow-md">
+                      {pkg.badge}
+                    </div>
+                  )}
+                  <div>
+                    <h3 className="font-serif text-2xl font-bold text-charcoal mb-2">{pkg.name}</h3>
+                    <p className="text-xs text-stone-500 mb-6">{pkg.desc}</p>
+                    
+                    <div className="bg-cream-100 rounded-2xl p-4 mb-6 border border-amber-200/60 text-center">
+                      <span className="text-3xl font-serif font-black text-amber-800">{pkg.pricePerPerson} TND</span>
+                      <span className="text-xs text-stone-500 block">par convive • min. {pkg.minGuests} personnes</span>
+                    </div>
+
+                    <ul className="space-y-3 text-xs text-stone-600">
+                      {pkg.includes.map((inc, i) => (
+                        <li key={i} className="flex items-start space-x-2.5 rtl:space-x-reverse">
+                          <i data-lucide="check" className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5"></i>
+                          <span>{inc}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="pt-8 mt-8 border-t border-amber-100">
+                    <button
+                      onClick={onOpenQuote}
+                      className="w-full bg-charcoal hover:bg-amber-700 text-white py-3 rounded-xl text-xs font-bold transition shadow-sm"
+                    >
+                      Choisir cette Formule
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* TESTIMONIALS */}
+          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="bg-gradient-to-r from-amber-800 via-amber-900 to-charcoal rounded-3xl p-8 sm:p-14 text-white shadow-2xl relative overflow-hidden">
+              <div className="relative z-10 max-w-3xl mx-auto text-center space-y-6">
+                <div className="flex justify-center space-x-1 text-amber-400">
+                  {[...Array(5)].map((_, i) => (
+                    <i key={i} data-lucide="star" className="w-5 h-5 fill-amber-400"></i>
+                  ))}
+                </div>
+                <p className="font-serif text-xl sm:text-2xl italic leading-relaxed text-cream-100">
+                  « Pour le mariage de notre fille à La Marsa, le Chef Karim et son équipe ont accompli un chef-d’œuvre. Le Couscous Royal au mérou a ébloui nos invités tunisiens et internationaux. La ponctualité, la tenue des serveurs et la finesse des pâtisseries étaient simplement parfaites. »
+                </p>
+                <div>
+                  <h5 className="font-serif font-bold text-lg text-white">Madame Leyla Chaabane</h5>
+                  <p className="text-xs text-amber-300">Mariage célébré en Octobre 2024 • 220 Invités</p>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      );
+    }
+
+    // --- MENU PAGE ---
+    function PublicMenu({ dishes, selectedCategory, setSelectedCategory, onOpenQuote, isAr }) {
+      const categories = ['All', 'Starters', 'Tajines', 'Mains', 'Desserts', 'Drinks'];
+
+      const catLabels = {
+        All: isAr ? 'الكل' : 'Tous les Délices',
+        Starters: isAr ? 'مقبلات وسلاطات' : 'Entrées & Salades',
+        Tajines: isAr ? 'طواجن تونسية' : 'Tajines d’Honneur',
+        Mains: isAr ? 'الأطباق الرئيسية' : 'Plats Principaux',
+        Desserts: isAr ? 'حلويات تونسية' : 'Douceurs & Desserts',
+        Drinks: isAr ? 'مشروبات وشاي' : 'Boissons & Thés',
+      };
+
+      return (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
+          <div className="text-center max-w-3xl mx-auto space-y-3">
+            <span className="text-xs font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
+              {isAr ? 'قائمة الطعام الكاملة' : 'Carte Gastronomique'}
+            </span>
+            <h1 className="font-serif text-4xl sm:text-5xl font-black text-charcoal">
+              Nos Saveurs et Recettes Traditionnelles
+            </h1>
+            <p className="text-sm text-stone-500">
+              Chaque met est préparé avec des huiles d’olive de première pression, des épices moulues à la meule et des viandes fraîches sélectionnées.
+            </p>
+          </div>
+
+          {/* Filter Bar */}
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            {categories.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition ${
+                  selectedCategory === cat
+                    ? 'bg-amber-600 text-white shadow-warm'
+                    : 'bg-white text-stone-700 hover:bg-amber-100/60 border border-amber-200'
+                }`}
+              >
+                {catLabels[cat] || cat}
+              </button>
+            ))}
+          </div>
+
+          {/* Dishes Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {dishes.map(dish => (
+              <div key={dish.id} className="bg-white rounded-2xl overflow-hidden border border-amber-200/80 shadow-warm hover:shadow-warm-lg transition flex flex-col">
+                <div className="relative h-56 overflow-hidden">
+                  <img
+                    src={dish.image}
+                    alt={dish.name}
+                    className="w-full h-full object-cover transform hover:scale-105 transition duration-500"
+                  />
+                  <div className="absolute top-3 right-3 bg-white/95 backdrop-blur px-3 py-1 rounded-full text-xs font-extrabold text-amber-800 shadow-md">
+                    {dish.price} TND
+                  </div>
+                  <span className="absolute bottom-3 left-3 bg-charcoal/70 backdrop-blur text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+                    {dish.category}
+                  </span>
+                </div>
+                <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                  <div>
+                    <div className="flex justify-between items-start">
+                      <h3 className="font-serif font-bold text-lg text-charcoal">{dish.name}</h3>
+                    </div>
+                    {dish.nameAr && <p className="text-xs text-amber-700 font-arabic mt-0.5">{dish.nameAr}</p>}
+                    <p className="text-xs text-stone-500 mt-3 leading-relaxed">{dish.desc}</p>
+                  </div>
+                  <div className="pt-4 border-t border-amber-100 flex items-center justify-between">
+                    <span className={`text-[11px] font-semibold flex items-center space-x-1.5 rtl:space-x-reverse ${dish.available ? 'text-emerald-700' : 'text-stone-400'}`}>
+                      <span className={`w-2 h-2 rounded-full ${dish.available ? 'bg-emerald-500' : 'bg-stone-300'}`}></span>
+                      <span>{dish.available ? (isAr ? 'متوفر للطلب' : 'Disponible') : (isAr ? 'غير متوفر مؤقتا' : 'Sur commande spéciale')}</span>
+                    </span>
+                    <button
+                      onClick={onOpenQuote}
+                      className="text-xs font-bold text-amber-700 hover:text-amber-900 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-200"
+                    >
+                      Ajouter au devis
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    // --- PACKAGES PAGE ---
+    function PublicPackages({ packages, onOpenQuote, isAr }) {
+      return (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
+          <div className="text-center max-w-3xl mx-auto space-y-3">
+            <span className="text-xs font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
+              Formules Complètes
+            </span>
+            <h1 className="font-serif text-4xl sm:text-5xl font-black text-charcoal">
+              Nos Packs Réception & Mariage
+            </h1>
+            <p className="text-sm text-stone-500">
+              Des formules clés en main calculées par personne comprenant le service, la mise en place et l’ensemble des mets traditionnels.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {packages.map(pkg => (
+              <div key={pkg.id} className="bg-white rounded-3xl p-8 border border-amber-200 shadow-warm flex flex-col justify-between">
+                <div>
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-xs font-bold text-coral-600 bg-coral-50 px-3 py-1 rounded-full">
+                      {pkg.badge || 'Formule'}
+                    </span>
+                    <span className="text-xs text-stone-400">Min. {pkg.minGuests} convives</span>
+                  </div>
+                  <h3 className="font-serif text-2xl font-bold text-charcoal mb-2">{pkg.name}</h3>
+                  <p className="text-xs text-stone-500 mb-6">{pkg.desc}</p>
+                  
+                  <div className="bg-amber-50 rounded-2xl p-5 mb-6 text-center border border-amber-200">
+                    <span className="text-4xl font-serif font-black text-amber-800">{pkg.pricePerPerson} TND</span>
+                    <span className="text-xs text-stone-600 block mt-1">par invité (TTC)</span>
+                  </div>
+
+                  <h4 className="font-serif font-bold text-sm text-charcoal mb-3">Ce qui est inclus :</h4>
+                  <ul className="space-y-3 text-xs text-stone-600">
+                    {pkg.includes.map((inc, i) => (
+                      <li key={i} className="flex items-start space-x-2.5 rtl:space-x-reverse">
+                        <i data-lucide="check-circle-2" className="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+                        <span>{inc}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="pt-8 mt-8 border-t border-amber-100">
+                  <button
+                    onClick={onOpenQuote}
+                    className="w-full bg-gradient-to-r from-amber-600 to-coral-500 text-white font-bold py-3.5 rounded-xl text-xs sm:text-sm shadow-warm hover:opacity-95 transition"
+                  >
+                    Demander une Réservation
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    // --- SERVICES PAGE ---
+    function PublicServices({ onOpenQuote, isAr }) {
+      const services = [
+        {
+          title: 'Mariages Féeriques & Dîners d’Outia',
+          desc: 'Pour le plus beau jour de votre vie, nous concevons des buffets majestueux ou des dîners servis à l’assiette. Plats servis sous cloches argentées, nappage immaculé, maîtres d’hôtel formés aux règles strictes de l’étiquette tunisienne.',
+          features: ['Dégustation préalable offerte pour 4 personnes', 'Gestion intégrale de la vaisselle beylicale et verrerie', 'Buffet sucré avec cascade de fruits frais sculptés'],
+          img: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=700&q=80'
+        },
+        {
+          title: 'Fiançailles & Soirées de Henné',
+          desc: 'Une atmosphère intimiste où chaque détail compte. Bar à thés parfumés, mini-tajines croustillants, salades fines et fontaines de jus frais pressés le jour même.',
+          features: ['Formules adaptées aux espaces de villa et rooftops', 'Options de décoration florale et bougies d’ambiance', 'Service discret et attentionné'],
+          img: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=700&q=80'
+        },
+        {
+          title: 'Banquets Corporate & Soirées de Gala',
+          desc: 'Faites briller votre entreprise auprès de vos partenaires, ambassades et collaborateurs avec un banquet tunisien haut de gamme alliant modernité et traditions.',
+          features: ['Devis détaillé avec mentions légales et TVA', 'Capacité jusqu’à 500 couverts en service simultané', 'Show culinaire en direct par le Chef Karim'],
+          img: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=700&q=80'
+        }
+      ];
+
+      return (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
+          <div className="text-center max-w-3xl mx-auto space-y-3">
+            <span className="text-xs font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
+              Expertise & Prestations
+            </span>
+            <h1 className="font-serif text-4xl sm:text-5xl font-black text-charcoal">
+              L’Art de Recevoir à la Tunisienne
+            </h1>
+          </div>
+
+          <div className="space-y-12">
+            {services.map((s, idx) => (
+              <div key={idx} className={`bg-white rounded-3xl p-8 border border-amber-200 shadow-warm grid grid-cols-1 lg:grid-cols-12 gap-8 items-center ${idx % 2 === 1 ? 'lg:flex-row-reverse' : ''}`}>
+                <div className={`lg:col-span-6 ${idx % 2 === 1 ? 'lg:order-2' : 'lg:order-1'}`}>
+                  <img src={s.img} alt={s.title} className="rounded-2xl shadow-md w-full h-80 object-cover" />
+                </div>
+                <div className={`lg:col-span-6 space-y-4 ${idx % 2 === 1 ? 'lg:order-1' : 'lg:order-2'}`}>
+                  <h3 className="font-serif text-2xl sm:text-3xl font-bold text-charcoal">{s.title}</h3>
+                  <p className="text-sm text-stone-600 leading-relaxed">{s.desc}</p>
+                  <ul className="space-y-2 pt-2">
+                    {s.features.map((f, i) => (
+                      <li key={i} className="text-xs sm:text-sm text-stone-700 flex items-center space-x-2 rtl:space-x-reverse">
+                        <i data-lucide="check" className="w-4 h-4 text-emerald-600"></i>
+                        <span>{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="pt-4">
+                    <button
+                      onClick={onOpenQuote}
+                      className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-2.5 rounded-xl text-xs font-bold transition shadow"
+                    >
+                      Demander un devis pour cet événement
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    // --- GALLERY PAGE ---
+    function PublicGallery() {
+      const photos = [
+        { url: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=700&q=80', title: 'Buffet Royal de Noces' },
+        { url: 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=700&q=80', title: 'Couscous de Fête' },
+        { url: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=700&q=80', title: 'Décoration & Art de la Table' },
+        { url: 'https://images.unsplash.com/photo-1519869325930-281384150729?auto=format&fit=crop&w=700&q=80', title: 'Pâtisseries Fines Beylicales' },
+        { url: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=700&q=80', title: 'Salades Méchouia Braisées' },
+        { url: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=700&q=80', title: 'Soirée Henné aux Berges du Lac' },
+      ];
+
+      return (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
+          <div className="text-center max-w-3xl mx-auto space-y-3">
+            <span className="text-xs font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
+              Portfolio
+            </span>
+            <h1 className="font-serif text-4xl sm:text-5xl font-black text-charcoal">
+              Nos Réalisations en Images
+            </h1>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {photos.map((p, i) => (
+              <div key={i} className="group relative rounded-2xl overflow-hidden shadow-warm border border-amber-200 aspect-[4/3]">
+                <img src={p.url} alt={p.title} className="w-full h-full object-cover transform group-hover:scale-110 transition duration-700" />
+                <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end p-6">
+                  <span className="text-white font-serif font-bold text-lg">{p.title}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    // --- ABOUT PAGE ---
+    function PublicAbout({ onOpenQuote }) {
+      return (
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
+          <div className="bg-white rounded-3xl p-8 sm:p-12 border border-amber-200 shadow-warm space-y-8">
+            <div className="flex flex-col sm:flex-row items-center gap-8">
+              <img
+                src="https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=500&q=80"
+                alt="Chef Karim"
+                className="w-48 h-48 rounded-2xl object-cover shadow-lg border-4 border-amber-200"
+              />
+              <div className="space-y-3 text-center sm:text-left rtl:sm:text-right">
+                <span className="text-xs font-bold uppercase tracking-wider text-amber-700">Fondateur & Maître Traiteur</span>
+                <h1 className="font-serif text-3xl sm:text-4xl font-bold text-charcoal">Chef Karim Ben Amor</h1>
+                <p className="text-xs text-stone-500">18 années de passion au service de la gastronomie d’apparat tunisienne</p>
+                <div className="flex flex-wrap gap-2 pt-2 justify-center sm:justify-start">
+                  <span className="bg-amber-100 text-amber-900 text-xs px-3 py-1 rounded-full font-medium">Diplômé de l’ITH Carthage</span>
+                  <span className="bg-coral-100 text-coral-900 text-xs px-3 py-1 rounded-full font-medium">Spécialiste Banquets Beylicaux</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4 text-stone-600 text-sm leading-relaxed border-t border-amber-100 pt-6">
+              <p>
+                Originaire de La Marsa et bercé par les effluves d’eau de fleur d’oranger et d’épices de sa grand-mère maternelle, Karim Ben Amor a fait ses armes auprès de grandes maisons hôtelières avant de consacrer son talent au rayonnement du patrimoine traiteur tunisien.
+              </p>
+              <p>
+                « Notre cuisine ne souffre aucun compromis : le couscous est roulé à la main, la pâte à brik est préparée à l’aube et nos épices proviennent des meilleurs terroirs de Nabeul et Kairouan. »
+              </p>
+            </div>
+
+            <div className="pt-4 flex justify-center">
+              <button
+                onClick={onOpenQuote}
+                className="bg-amber-600 hover:bg-amber-700 text-white px-8 py-3.5 rounded-xl font-bold text-sm shadow-warm transition"
+              >
+                Planifier un Rendez-vous avec le Chef
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // --- CONTACT & INSTANT BOOKING REQUEST COMPONENT ---
+    function PublicContact({ onNewBooking, isAr }) {
+      const [formData, setFormData] = useState({
+        clientName: '',
+        phone: '',
+        email: '',
+        eventType: 'Mariage',
+        date: '',
+        time: '19:00',
+        location: '',
+        guests: 50,
+        packageName: 'Sur Mesure',
+        estimatedBudget: 4000,
+        notes: ''
+      });
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        if (!formData.clientName || !formData.phone || !formData.date) {
+          alert('Veuillez renseigner votre nom, téléphone et date de réception.');
+          return;
+        }
+        onNewBooking(formData);
+        setFormData({
+          clientName: '',
+          phone: '',
+          email: '',
+          eventType: 'Mariage',
+          date: '',
+          time: '19:00',
+          location: '',
+          guests: 50,
+          packageName: 'Sur Mesure',
+          estimatedBudget: 4000,
+          notes: ''
+        });
+      };
+
+      return (
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
+          <div className="text-center space-y-2">
+            <span className="text-xs font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
+              Réservation Directe
+            </span>
+            <h1 className="font-serif text-3xl sm:text-4xl font-bold text-charcoal">
+              Demande de Devis & Disponibilité
+            </h1>
+            <p className="text-xs sm:text-sm text-stone-500">
+              Votre demande apparaîtra immédiatement dans le planning d’administration du Chef pour validation.
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-6 sm:p-10 border border-amber-200 shadow-warm space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-xs font-bold text-stone-700 uppercase mb-2">Nom & Prénom *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ex: Syrine Khemir"
+                  value={formData.clientName}
+                  onChange={e => setFormData({ ...formData, clientName: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none text-sm transition"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-stone-700 uppercase mb-2">Numéro de Téléphone *</label>
+                <input
+                  type="tel"
+                  required
+                  placeholder="+216 98 000 000"
+                  value={formData.phone}
+                  onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none text-sm transition"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-stone-700 uppercase mb-2">Email</label>
+                <input
+                  type="email"
+                  placeholder="votre.email@domaine.tn"
+                  value={formData.email}
+                  onChange={e => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none text-sm transition"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-stone-700 uppercase mb-2">Type d’Événement</label>
+                <select
+                  value={formData.eventType}
+                  onChange={e => setFormData({ ...formData, eventType: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none text-sm bg-white"
+                >
+                  <option value="Mariage">Mariage (Grand Banquet)</option>
+                  <option value="Fiançailles">Fiançailles / Henné / Outia</option>
+                  <option value="Anniversaire">Anniversaire / Fête de Famille</option>
+                  <option value="Circoncision">Tahour / Circoncision</option>
+                  <option value="Dîner d’Entreprise">Banquet d’Entreprise / Gala</option>
+                  <option value="Chef à Domicile">Chef Privé à Domicile</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-stone-700 uppercase mb-2">Date Prévue *</label>
+                <input
+                  type="date"
+                  required
+                  value={formData.date}
+                  onChange={e => setFormData({ ...formData, date: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-stone-700 uppercase mb-2">Lieu ou Ville de Réception</label>
+                <input
+                  type="text"
+                  placeholder="Ex: La Marsa, Gammarth, Hammamet..."
+                  value={formData.location}
+                  onChange={e => setFormData({ ...formData, location: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-stone-700 uppercase mb-2">
+                  Nombre d’Invités Estimé : <span className="text-amber-700">{formData.guests} pers.</span>
+                </label>
+                <input
+                  type="range"
+                  min="10"
+                  max="400"
+                  step="5"
+                  value={formData.guests}
+                  onChange={e => setFormData({ ...formData, guests: Number(e.target.value) })}
+                  className="w-full accent-amber-600"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-stone-700 uppercase mb-2">Budget Estimatif (TND)</label>
+                <input
+                  type="number"
+                  placeholder="Ex: 5000"
+                  value={formData.estimatedBudget}
+                  onChange={e => setFormData({ ...formData, estimatedBudget: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none text-sm"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-stone-700 uppercase mb-2">Exigences Culinaires & Précisions</label>
+              <textarea
+                rows="3"
+                placeholder="Précisez vos souhaits particuliers : plats sans gluten, horaires, animations, thé aux pignons..."
+                value={formData.notes}
+                onChange={e => setFormData({ ...formData, notes: e.target.value })}
+                className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none text-sm"
+              ></textarea>
+            </div>
+
+            <div className="pt-4">
+              <button
+                type="submit"
+                className="w-full bg-gradient-to-r from-amber-600 via-amber-500 to-coral-500 text-white font-bold py-4 rounded-xl text-sm shadow-warm hover:opacity-95 transition flex items-center justify-center space-x-2"
+              >
+                <i data-lucide="send" className="w-4 h-4"></i>
+                <span>Transmettre Ma Demande au Chef Karim</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      );
+    }
+
+    // --- QUOTE MODAL ---
+    function QuoteRequestModal({ onClose, packages, onSubmit }) {
+      const [form, setForm] = useState({
+        clientName: '',
+        phone: '',
+        email: '',
+        eventType: 'Mariage',
+        date: '',
+        location: 'Grand Tunis',
+        guests: 60,
+        packageName: packages[0]?.name || 'Pack Fiançailles',
+        estimatedBudget: 4500,
+        notes: ''
+      });
+
+      return (
+        <div className="fixed inset-0 z-50 bg-charcoal/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-amber-300 relative my-8">
+            <button
+              onClick={onClose}
+              className="absolute top-5 right-5 p-2 rounded-full text-stone-400 hover:text-stone-700 hover:bg-stone-100"
+            >
+              <i data-lucide="x" className="w-5 h-5"></i>
+            </button>
+
+            <div className="space-y-2 mb-6">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md">
+                Devis Express
+              </span>
+              <h3 className="font-serif text-2xl font-bold text-charcoal">Recevoir une Proposition Ciblée</h3>
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                onSubmit(form);
+              }}
+              className="space-y-4 text-xs sm:text-sm"
+            >
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">Votre Nom & Prénom *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Sonia Riahi"
+                  value={form.clientName}
+                  onChange={e => setForm({ ...form, clientName: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 outline-none focus:border-amber-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-stone-700 mb-1">Téléphone *</label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="+216 20 123 456"
+                    value={form.phone}
+                    onChange={e => setForm({ ...form, phone: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 outline-none focus:border-amber-500"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-stone-700 mb-1">Email</label>
+                  <input
+                    type="email"
+                    placeholder="sonia@gmail.com"
+                    value={form.email}
+                    onChange={e => setForm({ ...form, email: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 outline-none focus:border-amber-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-stone-700 mb-1">Formule Souhaitée</label>
+                  <select
+                    value={form.packageName}
+                    onChange={e => setForm({ ...form, packageName: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 outline-none focus:border-amber-500 bg-white"
+                  >
+                    {packages.map(p => (
+                      <option key={p.id} value={p.name}>{p.name}</option>
+                    ))}
+                    <option value="Sur Mesure">Menu 100% Personnalisé</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block font-bold text-stone-700 mb-1">Date Prévue *</label>
+                  <input
+                    type="date"
+                    required
+                    value={form.date}
+                    onChange={e => setForm({ ...form, date: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 outline-none focus:border-amber-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">
+                  Nombre d’invités : <span className="text-amber-700 font-bold">{form.guests} personnes</span>
+                </label>
+                <input
+                  type="range"
+                  min="20"
+                  max="350"
+                  step="5"
+                  value={form.guests}
+                  onChange={e => setForm({ ...form, guests: Number(e.target.value) })}
+                  className="w-full accent-amber-600"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">Lieu & Notes</label>
+                <textarea
+                  rows="2"
+                  placeholder="Lieu de l’événement, horaire, demandes particulières..."
+                  value={form.notes}
+                  onChange={e => setForm({ ...form, notes: e.target.value })}
+                  className="w-full px-3.5 py-2 rounded-xl border border-stone-200 outline-none focus:border-amber-500"
+                ></textarea>
+              </div>
+
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-amber-600 to-coral-500 text-white font-bold py-3.5 rounded-xl shadow-warm hover:opacity-95 transition"
+                >
+                  Envoyer la Demande de Devis
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      );
+    }
+
+    // ==========================================
+    // 2. CHEF ADMINISTRATION DASHBOARD
+    // ==========================================
+    function AdminDashboard({
+      currentTab,
+      setTab,
+      dishes,
+      setDishes,
+      packages,
+      setPackages,
+      bookings,
+      setBookings,
+      customers,
+      setCustomers,
+      kitchenTasks,
+      setKitchenTasks,
+      showToast,
+      language,
+      onReturnToPublic
+    }) {
+      const [sidebarOpen, setSidebarOpen] = useState(false);
+      const isAr = language === 'ar';
+
+      // Global Quick Actions
+      const pendingCount = bookings.filter(b => b.status === 'Nouvelle demande' || b.status === 'En attente').length;
+
+      return (
+        <div className="flex-1 flex bg-[#f8f6f2] min-h-screen">
+          {/* SIDEBAR NAVIGATION */}
+          <aside className={`fixed inset-y-0 z-40 lg:static lg:block w-72 bg-charcoal text-stone-200 border-r border-amber-900/40 transform transition-transform duration-300 ease-in-out ${
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+          } ${isAr ? 'right-0 border-l border-r-0' : 'left-0'}`}>
+            <div className="h-full flex flex-col justify-between p-5">
+              {/* Chef Profile / Brand */}
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3 rtl:space-x-reverse">
+                    <img
+                      src="https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=150&q=80"
+                      alt="Chef Karim"
+                      className="w-12 h-12 rounded-xl object-cover border-2 border-amber-500 shadow"
+                    />
+                    <div>
+                      <h2 className="font-serif font-bold text-white text-base">Chef Karim Ben Amor</h2>
+                      <p className="text-[11px] text-amber-400 font-medium">Administration Traiteur</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-stone-400 hover:text-white">
+                    <i data-lucide="x" className="w-5 h-5"></i>
+                  </button>
+                </div>
+
+                {/* Navigation Items */}
+                <nav className="space-y-1.5 text-xs font-semibold">
+                  {[
+                    { id: 'overview', label: 'Tableau de Bord', icon: 'layout-dashboard' },
+                    { id: 'calendar', label: 'Calendrier & Planning', icon: 'calendar' },
+                    { id: 'bookings', label: 'Réservations & Événements', icon: 'clipboard-list', badge: pendingCount },
+                    { id: 'customers', label: 'Gestion des Clients', icon: 'users' },
+                    { id: 'menu', label: 'Carte & Plats', icon: 'utensils' },
+                    { id: 'kitchen', label: 'Préparation Cuisine', icon: 'chef-hat' },
+                    { id: 'quotes', label: 'Calculateur Devis & Acomptes', icon: 'receipt' },
+                  ].map(tab => (
+                    <button
+                      key={tab.id}
+                      onClick={() => {
+                        setTab(tab.id);
+                        setSidebarOpen(false);
+                      }}
+                      className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl transition ${
+                        currentTab === tab.id
+                          ? 'bg-gradient-to-r from-amber-600 to-amber-700 text-white shadow-md'
+                          : 'text-stone-400 hover:text-white hover:bg-stone-800/60'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-3 rtl:space-x-reverse">
+                        <i data-lucide={tab.icon} className="w-4 h-4"></i>
+                        <span>{tab.label}</span>
+                      </div>
+                      {tab.badge > 0 && (
+                        <span className="bg-coral-500 text-white font-bold px-2 py-0.5 rounded-full text-[10px]">
+                          {tab.badge}
+                        </span>
+                      )}
+                    </button>
+                  ))}
+                </nav>
+              </div>
+
+              {/* Bottom Quick Return */}
+              <div className="pt-6 border-t border-stone-800 space-y-3">
+                <button
+                  onClick={onReturnToPublic}
+                  className="w-full flex items-center justify-center space-x-2 rtl:space-x-reverse bg-stone-800 hover:bg-stone-700 text-amber-300 py-2.5 rounded-xl text-xs font-semibold border border-amber-500/20 transition"
+                >
+                  <i data-lucide="external-link" className="w-3.5 h-3.5"></i>
+                  <span>Retourner au Site Public</span>
+                </button>
+                <p className="text-[10px] text-stone-500 text-center">Version 1.2 Pro • Devise: TND (Dinars)</p>
+              </div>
+            </div>
+          </aside>
+
+          {/* MAIN ADMIN CONTENT AREA */}
+          <main className="flex-1 flex flex-col min-w-0 overflow-y-auto">
+            {/* Admin Header Bar */}
+            <div className="bg-white border-b border-stone-200 px-6 py-4 flex items-center justify-between sticky top-9 z-30 shadow-sm">
+              <div className="flex items-center space-x-3 rtl:space-x-reverse">
+                <button
+                  onClick={() => setSidebarOpen(true)}
+                  className="lg:hidden p-2 rounded-lg bg-stone-100 text-stone-600 hover:bg-stone-200"
+                >
+                  <i data-lucide="menu" className="w-5 h-5"></i>
+                </button>
+                <div>
+                  <h1 className="font-serif font-bold text-xl text-charcoal capitalize">
+                    {currentTab === 'overview' && 'Aperçu & Indicateurs d’Activité'}
+                    {currentTab === 'calendar' && 'Calendrier des Événements & Conflits'}
+                    {currentTab === 'bookings' && 'Suivi des Réservations & Commandes'}
+                    {currentTab === 'customers' && 'Répertoire des Clients'}
+                    {currentTab === 'menu' && 'Gestion de la Carte & Disponibilités'}
+                    {currentTab === 'kitchen' && 'Ordre de Préparation en Cuisine'}
+                    {currentTab === 'quotes' && 'Générateur de Devis Professionnel'}
+                  </h1>
+                  <p className="text-xs text-stone-500">
+                    Mise à jour en temps réel • Sauvegarde locale activée
+                  </p>
+                </div>
+              </div>
+
+              {/* Top Quick Status Pill */}
+              <div className="hidden sm:flex items-center space-x-3 rtl:space-x-reverse">
+                <span className="text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 px-3 py-1.5 rounded-full flex items-center space-x-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  <span>Cuisine Opérationnelle</span>
+                </span>
+              </div>
+            </div>
+
+            {/* TAB CONTENTS */}
+            <div className="p-6 max-w-7xl w-full mx-auto space-y-6">
+              {currentTab === 'overview' && (
+                <AdminOverviewTab
+                  bookings={bookings}
+                  customers={customers}
+                  dishes={dishes}
+                  setTab={setTab}
+                  showToast={showToast}
+                />
+              )}
+              {currentTab === 'calendar' && (
+                <AdminCalendarTab
+                  bookings={bookings}
+                  setBookings={setBookings}
+                  showToast={showToast}
+                />
+              )}
+              {currentTab === 'bookings' && (
+                <AdminBookingsTab
+                  bookings={bookings}
+                  setBookings={setBookings}
+                  showToast={showToast}
+                />
+              )}
+              {currentTab === 'customers' && (
+                <AdminCustomersTab
+                  customers={customers}
+                  setCustomers={setCustomers}
+                  bookings={bookings}
+                  showToast={showToast}
+                />
+              )}
+              {currentTab === 'menu' && (
+                <AdminMenuTab
+                  dishes={dishes}
+                  setDishes={setDishes}
+                  showToast={showToast}
+                />
+              )}
+              {currentTab === 'kitchen' && (
+                <AdminKitchenTab
+                  tasks={kitchenTasks}
+                  setTasks={setKitchenTasks}
+                  bookings={bookings}
+                  showToast={showToast}
+                />
+              )}
+              {currentTab === 'quotes' && (
+                <AdminQuotesTab
+                  packages={packages}
+                  dishes={dishes}
+                  showToast={showToast}
+                />
+              )}
+            </div>
+          </main>
+        </div>
+      );
+    }
+
+    // --- TAB: ADMIN OVERVIEW ---
+    function AdminOverviewTab({ bookings, customers, dishes, setTab, showToast }) {
+      const totalRevenue = bookings
+        .filter(b => b.status === 'Confirmé' || b.status === 'Terminé' || b.status === 'En préparation')
+        .reduce((sum, b) => sum + (Number(b.estimatedBudget) || 0), 0);
+
+      const confirmedEvents = bookings.filter(b => b.status === 'Confirmé' || b.status === 'En préparation').length;
+      const newRequests = bookings.filter(b => b.status === 'Nouvelle demande').length;
+
+      return (
+        <div className="space-y-6">
+          {/* Top KPI Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex items-center justify-between">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-stone-400">Chiffre d’Affaires Validé</p>
+                <h3 className="font-serif text-2xl font-black text-amber-700 mt-1">{totalRevenue.toLocaleString()} TND</h3>
+                <span className="text-[11px] text-emerald-600 font-medium">Banquets confirmés</span>
+              </div>
+              <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                <i data-lucide="badge-dollar-sign" className="w-6 h-6"></i>
+              </div>
+            </div>
+
+            <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex items-center justify-between">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-stone-400">Événements en Prépa / Confirmés</p>
+                <h3 className="font-serif text-2xl font-black text-charcoal mt-1">{confirmedEvents}</h3>
+                <span className="text-[11px] text-stone-500 font-medium">Ce trimestre</span>
+              </div>
+              <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                <i data-lucide="calendar" className="w-6 h-6"></i>
+              </div>
+            </div>
+
+            <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex items-center justify-between">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-stone-400">Demandes de Devis en Attente</p>
+                <h3 className="font-serif text-2xl font-black text-coral-600 mt-1">{newRequests}</h3>
+                <span className="text-[11px] text-coral-500 font-medium">Nécessite réponse</span>
+              </div>
+              <div className="w-12 h-12 rounded-xl bg-coral-50 text-coral-600 flex items-center justify-center">
+                <i data-lucide="bell" className="w-6 h-6"></i>
+              </div>
+            </div>
+
+            <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex items-center justify-between">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-stone-400">Plats à la Carte</p>
+                <h3 className="font-serif text-2xl font-black text-stone-800 mt-1">{dishes.length}</h3>
+                <span className="text-[11px] text-amber-600 font-medium">{dishes.filter(d => d.available).length} disponibles</span>
+              </div>
+              <div className="w-12 h-12 rounded-xl bg-stone-100 text-stone-700 flex items-center justify-center">
+                <i data-lucide="utensils" className="w-6 h-6"></i>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Reminder & Recent Requests */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Urgent Booking Actions */}
+            <div className="lg:col-span-7 bg-white rounded-2xl border border-stone-200 p-6 shadow-sm space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-serif font-bold text-lg text-charcoal">Dernières Demandes Reçues</h3>
+                  <p className="text-xs text-stone-500">Demandes issues du formulaire public</p>
+                </div>
+                <button
+                  onClick={() => setTab('bookings')}
+                  className="text-xs font-bold text-amber-700 hover:underline"
+                >
+                  Voir Tout ({bookings.length})
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                {bookings.slice(0, 3).map(bkg => (
+                  <div key={bkg.id} className="p-4 rounded-xl border border-stone-100 bg-stone-50/70 hover:bg-stone-50 flex items-center justify-between">
+                    <div className="space-y-1">
+                      <div className="flex items-center space-x-2 rtl:space-x-reverse">
+                        <span className="font-bold text-xs text-charcoal">{bkg.clientName}</span>
+                        <span className="text-[10px] bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full font-semibold">
+                          {bkg.eventType}
+                        </span>
+                      </div>
+                      <p className="text-xs text-stone-500">
+                        {bkg.date} • {bkg.guests} convives • {bkg.location || 'Tunis'}
+                      </p>
+                    </div>
+                    <div className="text-right rtl:text-left space-y-1">
+                      <span className="font-serif font-bold text-sm text-amber-800 block">
+                        {Number(bkg.estimatedBudget).toLocaleString()} TND
+                      </span>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                        bkg.status === 'Confirmé' ? 'bg-emerald-100 text-emerald-800' :
+                        bkg.status === 'Nouvelle demande' ? 'bg-coral-100 text-coral-800' : 'bg-amber-100 text-amber-800'
+                      }`}>
+                        {bkg.status}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Chef Reminders & Notes */}
+            <div className="lg:col-span-5 bg-gradient-to-br from-amber-50 to-cream-200 rounded-2xl border border-amber-200 p-6 shadow-sm space-y-4">
+              <div className="flex items-center space-x-2 rtl:space-x-reverse text-amber-800 font-bold">
+                <i data-lucide="clipboard-pen" className="w-5 h-5 text-amber-600"></i>
+                <h3 className="font-serif text-lg">Mémos du Chef Karim</h3>
+              </div>
+
+              <div className="space-y-3 text-xs text-stone-700">
+                <div className="p-3 bg-white/80 rounded-xl border border-amber-200/60 shadow-xs flex items-start space-x-3 rtl:space-x-reverse">
+                  <span className="w-2 h-2 rounded-full bg-coral-500 mt-1.5 shrink-0"></span>
+                  <p><strong>Arrivage d’agneau fermier :</strong> Livraison jeudi matin pour le mariage de M. Triki à La Marsa.</p>
+                </div>
+                <div className="p-3 bg-white/80 rounded-xl border border-amber-200/60 shadow-xs flex items-start space-x-3 rtl:space-x-reverse">
+                  <span className="w-2 h-2 rounded-full bg-amber-500 mt-1.5 shrink-0"></span>
+                  <p><strong>Contrôle vaisselle :</strong> Vérifier les 200 assiettes dorées et verres en cristal avec l’équipe de salle.</p>
+                </div>
+                <div className="p-3 bg-white/80 rounded-xl border border-amber-200/60 shadow-xs flex items-start space-x-3 rtl:space-x-reverse">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 shrink-0"></span>
+                  <p><strong>Fournisseur Zgougou :</strong> Graines de pin d’Alep de Siliana certifiées bio reçues en réserve.</p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setTab('kitchen')}
+                className="w-full bg-amber-700 hover:bg-amber-800 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-sm"
+              >
+                Ouvrir la Liste de Cuisine
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // --- TAB: ADMIN CALENDAR ---
+    function AdminCalendarTab({ bookings, setBookings, showToast }) {
+      const [currentMonth, setCurrentMonth] = useState(new Date(2025, 4, 1)); // May 2025
+      const [selectedEvent, setSelectedEvent] = useState(null);
+      const [showNewEventModal, setShowNewEventModal] = useState(false);
+
+      // Month Navigation
+      const nextMonth = () => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
+      const prevMonth = () => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
+
+      const monthName = currentMonth.toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
+
+      // Generate Calendar Days for Current Month
+      const year = currentMonth.getFullYear();
+      const month = currentMonth.getMonth();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7; // Monday start
+
+      const days = [];
+      for (let i = 0; i < firstDayIndex; i++) days.push(null);
+      for (let d = 1; d <= daysInMonth; d++) days.push(d);
+
+      return (
+        <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-sm space-y-6">
+          {/* Header & Controls */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="font-serif text-2xl font-bold text-charcoal capitalize">{monthName}</h2>
+              <p className="text-xs text-stone-500">Visualisez les mariages, banquets et éventuels conflits de dates</p>
+            </div>
+
+            <div className="flex items-center space-x-3 rtl:space-x-reverse">
+              <div className="flex items-center space-x-1 border border-stone-200 rounded-xl p-1 bg-stone-50">
+                <button onClick={prevMonth} className="p-1.5 rounded-lg hover:bg-white text-stone-600 transition">
+                  <i data-lucide="chevron-left" className="w-4 h-4"></i>
+                </button>
+                <button onClick={nextMonth} className="p-1.5 rounded-lg hover:bg-white text-stone-600 transition">
+                  <i data-lucide="chevron-right" className="w-4 h-4"></i>
+                </button>
+              </div>
+
+              <button
+                onClick={() => setShowNewEventModal(true)}
+                className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2"
+              >
+                <i data-lucide="plus" className="w-4 h-4"></i>
+                <span>Ajouter un Événement</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Calendar Grid */}
+          <div className="border border-stone-200 rounded-xl overflow-hidden">
+            <div className="grid grid-cols-7 bg-stone-100 text-stone-600 text-center text-xs font-bold py-2.5 border-b border-stone-200">
+              {['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'].map((d, i) => (
+                <div key={i}>{d}</div>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-7 auto-rows-[110px] divide-x divide-y divide-stone-100 text-xs">
+              {days.map((day, idx) => {
+                if (!day) return <div key={idx} className="bg-stone-50/40 p-2"></div>;
+
+                const dayString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const eventsOnThisDay = bookings.filter(b => b.date === dayString);
+                const hasConflict = eventsOnThisDay.length > 1;
+
+                return (
+                  <div key={idx} className={`p-2 transition relative flex flex-col justify-between ${hasConflict ? 'bg-coral-50/50' : 'hover:bg-amber-50/30'}`}>
+                    <div className="flex justify-between items-center">
+                      <span className={`font-bold text-xs ${eventsOnThisDay.length > 0 ? 'text-amber-800 font-black' : 'text-stone-700'}`}>
+                        {day}
+                      </span>
+                      {hasConflict && (
+                        <span className="text-[9px] bg-coral-600 text-white font-black px-1.5 py-0.5 rounded-full" title="Double réservation">
+                          Conflit
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="space-y-1 overflow-y-auto max-h-[70px]">
+                      {eventsOnThisDay.map(ev => (
+                        <div
+                          key={ev.id}
+                          onClick={() => setSelectedEvent(ev)}
+                          className={`p-1 rounded text-[10px] font-semibold cursor-pointer truncate transition ${
+                            ev.status === 'Confirmé' ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200' :
+                            ev.status === 'En préparation' ? 'bg-amber-100 text-amber-800 hover:bg-amber-200' :
+                            'bg-stone-200 text-stone-800 hover:bg-stone-300'
+                          }`}
+                        >
+                          {ev.clientName} ({ev.eventType})
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* EVENT DETAIL MODAL */}
+          {selectedEvent && (
+            <div className="fixed inset-0 z-50 bg-charcoal/60 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-amber-300 space-y-4">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <span className="text-[10px] font-black uppercase tracking-wider text-amber-800 bg-amber-100 px-2.5 py-1 rounded-full">
+                      {selectedEvent.eventType}
+                    </span>
+                    <h3 className="font-serif font-bold text-2xl text-charcoal mt-1">{selectedEvent.clientName}</h3>
+                  </div>
+                  <button onClick={() => setSelectedEvent(null)} className="p-1 rounded-full hover:bg-stone-100 text-stone-500">
+                    <i data-lucide="x" className="w-5 h-5"></i>
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 text-xs bg-stone-50 p-4 rounded-xl">
+                  <div>
+                    <span className="text-stone-400 block font-semibold">Date & Heure :</span>
+                    <span className="font-bold text-stone-800">{selectedEvent.date} à {selectedEvent.time}</span>
+                  </div>
+                  <div>
+                    <span className="text-stone-400 block font-semibold">Lieu :</span>
+                    <span className="font-bold text-stone-800">{selectedEvent.location}</span>
+                  </div>
+                  <div>
+                    <span className="text-stone-400 block font-semibold">Convives :</span>
+                    <span className="font-bold text-stone-800">{selectedEvent.guests} personnes</span>
+                  </div>
+                  <div>
+                    <span className="text-stone-400 block font-semibold">Budget Estimatif :</span>
+                    <span className="font-bold text-amber-800 text-sm">{Number(selectedEvent.estimatedBudget).toLocaleString()} TND</span>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-xs font-bold text-stone-700 uppercase mb-1">Statut Actuel :</h4>
+                  <select
+                    value={selectedEvent.status}
+                    onChange={(e) => {
+                      const updated = bookings.map(b => b.id === selectedEvent.id ? { ...b, status: e.target.value } : b);
+                      setBookings(updated);
+                      setSelectedEvent({ ...selectedEvent, status: e.target.value });
+                      showToast('Statut mis à jour avec succès');
+                    }}
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-stone-300 font-semibold bg-white"
+                  >
+                    {['Nouvelle demande', 'En attente', 'Devis envoyé', 'Confirmé', 'En préparation', 'Terminé', 'Annulé'].map(st => (
+                      <option key={st} value={st}>{st}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="text-xs text-stone-600 bg-amber-50/60 p-3 rounded-xl border border-amber-200/50">
+                  <span className="font-bold block text-amber-900 mb-1">Notes Internes Cuisine :</span>
+                  {selectedEvent.notes || 'Aucune note particulière.'}
+                </div>
+
+                <div className="flex justify-between items-center pt-2">
+                  <button
+                    onClick={() => {
+                      if (confirm('Voulez-vous supprimer cette réservation ?')) {
+                        setBookings(bookings.filter(b => b.id !== selectedEvent.id));
+                        setSelectedEvent(null);
+                        showToast('Réservation supprimée');
+                      }
+                    }}
+                    className="text-xs text-coral-600 hover:underline font-bold"
+                  >
+                    Supprimer l’événement
+                  </button>
+                  <button
+                    onClick={() => setSelectedEvent(null)}
+                    className="bg-charcoal text-white px-5 py-2 rounded-xl text-xs font-bold"
+                  >
+                    Fermer
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* NEW EVENT QUICK MODAL */}
+          {showNewEventModal && (
+            <NewBookingModal
+              onClose={() => setShowNewEventModal(false)}
+              onSave={(newEvent) => {
+                setBookings([newEvent, ...bookings]);
+                setShowNewEventModal(false);
+                showToast('Événement ajouté au calendrier');
+              }}
+            />
+          )}
+        </div>
+      );
+    }
+
+    // --- TAB: ADMIN BOOKINGS LIST ---
+    function AdminBookingsTab({ bookings, setBookings, showToast }) {
+      const [filterStatus, setFilterStatus] = useState('All');
+      const [searchTerm, setSearchTerm] = useState('');
+
+      const filtered = useMemo(() => {
+        return bookings.filter(b => {
+          const matchStatus = filterStatus === 'All' || b.status === filterStatus;
+          const matchSearch = b.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                              b.eventType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                              b.location.toLowerCase().includes(searchTerm.toLowerCase());
+          return matchStatus && matchSearch;
+        });
+      }, [bookings, filterStatus, searchTerm]);
+
+      const handleStatusChange = (id, newStatus) => {
+        const updated = bookings.map(b => b.id === id ? { ...b, status: newStatus } : b);
+        setBookings(updated);
+        showToast(`Statut de réservation changé à : ${newStatus}`);
+      };
+
+      const handleDelete = (id) => {
+        if (confirm('Supprimer définitivement cette réservation ?')) {
+          setBookings(bookings.filter(b => b.id !== id));
+          showToast('Réservation effacée');
+        }
+      };
+
+      return (
+        <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-sm space-y-6">
+          {/* Filter Bar */}
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="relative w-full sm:w-72">
+              <i data-lucide="search" className="w-4 h-4 text-stone-400 absolute left-3 top-3"></i>
+              <input
+                type="text"
+                placeholder="Rechercher client, événement..."
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                className="w-full pl-9 pr-4 py-2 rounded-xl border border-stone-200 text-xs focus:border-amber-500 outline-none"
+              />
+            </div>
+
+            <div className="flex items-center space-x-2 overflow-x-auto w-full sm:w-auto text-xs">
+              {['All', 'Nouvelle demande', 'Confirmé', 'En préparation', 'Terminé'].map(st => (
+                <button
+                  key={st}
+                  onClick={() => setFilterStatus(st)}
+                  className={`px-3 py-1.5 rounded-xl whitespace-nowrap font-medium transition ${
+                    filterStatus === st
+                      ? 'bg-amber-600 text-white'
+                      : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                  }`}
+                >
+                  {st === 'All' ? 'Toutes' : st}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Bookings Table */}
+          <div className="overflow-x-auto">
+            <table className="w-full text-left rtl:text-right text-xs">
+              <thead className="bg-stone-100 text-stone-600 font-bold uppercase tracking-wider text-[10px]">
+                <tr>
+                  <th className="py-3 px-4 rounded-l-xl">Réf & Client</th>
+                  <th className="py-3 px-4">Événement & Date</th>
+                  <th className="py-3 px-4">Convives & Lieu</th>
+                  <th className="py-3 px-4">Budget & Acompte</th>
+                  <th className="py-3 px-4">Statut</th>
+                  <th className="py-3 px-4 rounded-r-xl text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-stone-100">
+                {filtered.map(b => (
+                  <tr key={b.id} className="hover:bg-amber-50/40 transition">
+                    <td className="py-4 px-4">
+                      <span className="font-bold text-charcoal block">{b.clientName}</span>
+                      <span className="text-[10px] text-stone-400 font-mono">{b.phone}</span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className="font-semibold text-amber-800 block">{b.eventType}</span>
+                      <span className="text-[10px] text-stone-500">{b.date} à {b.time}</span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className="font-bold text-stone-800 block">{b.guests} invités</span>
+                      <span className="text-[10px] text-stone-500 truncate max-w-[150px] block">{b.location}</span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className="font-serif font-bold text-sm text-charcoal block">
+                        {Number(b.estimatedBudget).toLocaleString()} TND
+                      </span>
+                      <span className="text-[10px] text-emerald-700 font-medium">
+                        Acompte: {b.depositPaid || 0} TND
+                      </span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <select
+                        value={b.status}
+                        onChange={(e) => handleStatusChange(b.id, e.target.value)}
+                        className={`text-[11px] font-bold px-2 py-1 rounded-lg border outline-none ${
+                          b.status === 'Confirmé' ? 'bg-emerald-50 text-emerald-800 border-emerald-300' :
+                          b.status === 'Nouvelle demande' ? 'bg-coral-50 text-coral-800 border-coral-300' :
+                          b.status === 'En préparation' ? 'bg-amber-50 text-amber-800 border-amber-300' :
+                          'bg-stone-100 text-stone-700 border-stone-300'
+                        }`}
+                      >
+                        {['Nouvelle demande', 'En attente', 'Devis envoyé', 'Confirmé', 'En préparation', 'Terminé', 'Annulé'].map(s => (
+                          <option key={s} value={s}>{s}</option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="py-4 px-4 text-center">
+                      <button
+                        onClick={() => handleDelete(b.id)}
+                        className="p-1.5 rounded-lg text-stone-400 hover:text-coral-600 hover:bg-coral-50 transition"
+                        title="Supprimer"
+                      >
+                        <i data-lucide="trash-2" className="w-4 h-4"></i>
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      );
+    }
+
+    // --- TAB: ADMIN CUSTOMERS ---
+    function AdminCustomersTab({ customers, setCustomers, bookings, showToast }) {
+      const [search, setSearch] = useState('');
+      const [showModal, setShowModal] = useState(false);
+
+      const filtered = customers.filter(c =>
+        c.name.toLowerCase().includes(search.toLowerCase()) ||
+        c.phone.includes(search) ||
+        c.city.toLowerCase().includes(search.toLowerCase())
+      );
+
+      return (
+        <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-sm space-y-6">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div>
+              <h2 className="font-serif text-2xl font-bold text-charcoal">Fichier Clients & Historique</h2>
+              <p className="text-xs text-stone-500">Gérez vos clients fidèles, coordonnées et préférences alimentaires</p>
+            </div>
+
+            <div className="flex items-center space-x-3 rtl:space-x-reverse w-full sm:w-auto">
+              <input
+                type="text"
+                placeholder="Rechercher client..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="px-4 py-2 rounded-xl border border-stone-200 text-xs focus:border-amber-500 outline-none w-full sm:w-56"
+              />
+              <button
+                onClick={() => setShowModal(true)}
+                className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 shrink-0"
+              >
+                <i data-lucide="user-plus" className="w-4 h-4"></i>
+                <span>Nouveau Client</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filtered.map(cust => (
+              <div key={cust.id} className="p-5 rounded-2xl border border-stone-200 bg-stone-50/60 hover:bg-amber-50/30 transition flex flex-col justify-between">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h4 className="font-serif font-bold text-base text-charcoal">{cust.name}</h4>
+                      <p className="text-xs text-stone-500">{cust.city}</p>
+                    </div>
+                    <span className="text-[10px] bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full font-bold">
+                      {cust.totalBookings} Événement(s)
+                    </span>
+                  </div>
+
+                  <div className="text-xs space-y-1 text-stone-600">
+                    <p className="flex items-center space-x-2 rtl:space-x-reverse">
+                      <i data-lucide="phone" className="w-3.5 h-3.5 text-amber-600"></i>
+                      <span>{cust.phone}</span>
+                    </p>
+                    <p className="flex items-center space-x-2 rtl:space-x-reverse">
+                      <i data-lucide="mail" className="w-3.5 h-3.5 text-amber-600"></i>
+                      <span>{cust.email}</span>
+                    </p>
+                  </div>
+
+                  <div className="bg-white p-3 rounded-xl border border-stone-200 text-xs">
+                    <span className="font-bold text-amber-800 block text-[10px] uppercase">Régimes & Préférences :</span>
+                    <p className="text-stone-500 mt-0.5">{cust.dietary || 'Aucune restriction'}</p>
+                  </div>
+                </div>
+
+                <div className="pt-4 mt-4 border-t border-stone-200 flex justify-between items-center text-xs">
+                  <span className="font-bold text-amber-700">{cust.totalSpent?.toLocaleString()} TND cumulés</span>
+                  <button
+                    onClick={() => {
+                      if (confirm('Supprimer ce client du répertoire ?')) {
+                        setCustomers(customers.filter(c => c.id !== cust.id));
+                        showToast('Client supprimé');
+                      }
+                    }}
+                    className="text-stone-400 hover:text-coral-600"
+                  >
+                    <i data-lucide="trash" className="w-3.5 h-3.5"></i>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* NEW CUSTOMER MODAL */}
+          {showModal && (
+            <div className="fixed inset-0 z-50 bg-charcoal/60 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-amber-300 space-y-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="font-serif font-bold text-xl text-charcoal">Ajouter un Client</h3>
+                  <button onClick={() => setShowModal(false)}><i data-lucide="x" className="w-5 h-5 text-stone-400"></i></button>
+                </div>
+
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const form = e.target;
+                    const newC = {
+                      id: `c${Date.now()}`,
+                      name: form.name.value,
+                      phone: form.phone.value,
+                      email: form.email.value,
+                      city: form.city.value || 'Tunis',
+                      totalBookings: 0,
+                      totalSpent: 0,
+                      dietary: form.dietary.value,
+                      notes: form.notes.value
+                    };
+                    setCustomers([newC, ...customers]);
+                    setShowModal(false);
+                    showToast('Client ajouté avec succès');
+                  }}
+                  className="space-y-3 text-xs"
+                >
+                  <div>
+                    <label className="block font-bold mb-1">Nom Complet *</label>
+                    <input name="name" required className="w-full px-3 py-2 rounded-xl border border-stone-300" />
+                  </div>
+                  <div>
+                    <label className="block font-bold mb-1">Téléphone *</label>
+                    <input name="phone" required className="w-full px-3 py-2 rounded-xl border border-stone-300" />
+                  </div>
+                  <div>
+                    <label className="block font-bold mb-1">Email</label>
+                    <input name="email" type="email" className="w-full px-3 py-2 rounded-xl border border-stone-300" />
+                  </div>
+                  <div>
+                    <label className="block font-bold mb-1">Ville / Résidence</label>
+                    <input name="city" placeholder="Ex: La Marsa" className="w-full px-3 py-2 rounded-xl border border-stone-300" />
+                  </div>
+                  <div>
+                    <label className="block font-bold mb-1">Préférences / Allergies</label>
+                    <input name="dietary" placeholder="Ex: Sans gluten, sans amandes" className="w-full px-3 py-2 rounded-xl border border-stone-300" />
+                  </div>
+                  <button type="submit" className="w-full bg-amber-600 text-white font-bold py-2.5 rounded-xl shadow">
+                    Enregistrer le Client
+                  </button>
+                </form>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // --- TAB: ADMIN MENU MANAGEMENT ---
+    function AdminMenuTab({ dishes, setDishes, showToast }) {
+      const [showAddModal, setShowAddModal] = useState(false);
+      const [editingDish, setEditingDish] = useState(null);
+
+      const toggleAvailability = (id) => {
+        const updated = dishes.map(d => d.id === id ? { ...d, available: !d.available } : d);
+        setDishes(updated);
+        showToast('Disponibilité du plat mise à jour');
+      };
+
+      const handleDeleteDish = (id) => {
+        if (confirm('Voulez-vous retirer ce plat de la carte ?')) {
+          setDishes(dishes.filter(d => d.id !== id));
+          showToast('Plat supprimé de la carte');
+        }
+      };
+
+      return (
+        <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-sm space-y-6">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div>
+              <h2 className="font-serif text-2xl font-bold text-charcoal">Administration de la Carte</h2>
+              <p className="text-xs text-stone-500">Ajoutez, modifiez les prix et ajustez les disponibilités en temps réel</p>
+            </div>
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center space-x-2"
+            >
+              <i data-lucide="plus" className="w-4 h-4"></i>
+              <span>Ajouter un Nouveau Plat</span>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {dishes.map(dish => (
+              <div key={dish.id} className="border border-stone-200 rounded-2xl overflow-hidden bg-stone-50/50 flex flex-col justify-between">
+                <div>
+                  <div className="relative h-40">
+                    <img src={dish.image} alt={dish.name} className="w-full h-full object-cover" />
+                    <span className="absolute top-3 left-3 bg-charcoal/80 text-white text-[10px] font-bold px-2 py-0.5 rounded-md">
+                      {dish.category}
+                    </span>
+                    <button
+                      onClick={() => toggleAvailability(dish.id)}
+                      className={`absolute top-3 right-3 text-[10px] font-black px-2.5 py-1 rounded-full shadow ${
+                        dish.available ? 'bg-emerald-500 text-white' : 'bg-stone-700 text-stone-300'
+                      }`}
+                    >
+                      {dish.available ? 'Disponible' : 'Épuisé'}
+                    </button>
+                  </div>
+
+                  <div className="p-4 space-y-2">
+                    <div className="flex justify-between items-start">
+                      <h4 className="font-serif font-bold text-base text-charcoal">{dish.name}</h4>
+                      <span className="font-serif font-black text-amber-800 text-base">{dish.price} TND</span>
+                    </div>
+                    <p className="text-xs text-stone-500 line-clamp-2 leading-relaxed">{dish.desc}</p>
+                  </div>
+                </div>
+
+                <div className="p-4 pt-0 flex justify-between items-center border-t border-stone-100 mt-2">
+                  <button
+                    onClick={() => setEditingDish(dish)}
+                    className="text-xs text-amber-700 hover:text-amber-900 font-bold"
+                  >
+                    Modifier le plat
+                  </button>
+                  <button
+                    onClick={() => handleDeleteDish(dish.id)}
+                    className="text-stone-400 hover:text-coral-600"
+                  >
+                    <i data-lucide="trash-2" className="w-4 h-4"></i>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* ADD / EDIT DISH MODAL */}
+          {(showAddModal || editingDish) && (
+            <DishFormModal
+              initialData={editingDish}
+              onClose={() => {
+                setShowAddModal(false);
+                setEditingDish(null);
+              }}
+              onSave={(savedDish) => {
+                if (editingDish) {
+                  setDishes(dishes.map(d => d.id === savedDish.id ? savedDish : d));
+                  showToast('Plat mis à jour');
+                } else {
+                  setDishes([savedDish, ...dishes]);
+                  showToast('Nouveau plat ajouté au menu');
+                }
+                setShowAddModal(false);
+                setEditingDish(null);
+              }}
+            />
+          )}
+        </div>
+      );
+    }
+
+    // --- TAB: KITCHEN PREPARATION PLANNER ---
+    function AdminKitchenTab({ tasks, setTasks, bookings, showToast }) {
+      const [newTaskText, setNewTaskText] = useState('');
+      const [newTaskStation, setNewTaskStation] = useState('Chaud & Tajines');
+
+      const toggleTask = (id) => {
+        const updated = tasks.map(t => t.id === id ? { ...t, done: !t.done } : t);
+        setTasks(updated);
+      };
+
+      const handleAddTask = (e) => {
+        e.preventDefault();
+        if (!newTaskText) return;
+        const newTask = {
+          id: `k${Date.now()}`,
+          eventId: bookings[0]?.id || 'GENERAL',
+          task: newTaskText,
+          station: newTaskStation,
+          done: false
+        };
+        setTasks([newTask, ...tasks]);
+        setNewTaskText('');
+        showToast('Tâche ajoutée au tableau de cuisine');
+      };
+
+      return (
+        <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-sm space-y-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+            <div>
+              <h2 className="font-serif text-2xl font-bold text-charcoal">Planning & Préparations de Cuisine</h2>
+              <p className="text-xs text-stone-500">Mise en place, approvisionnements du marché et découpe des viandes</p>
+            </div>
+            <div className="text-xs font-bold text-amber-800 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-xl">
+              {tasks.filter(t => t.done).length} / {tasks.length} tâches terminées
+            </div>
+          </div>
+
+          {/* Add Task Input */}
+          <form onSubmit={handleAddTask} className="flex flex-col sm:flex-row gap-3 bg-stone-50 p-4 rounded-xl border border-stone-200">
+            <input
+              type="text"
+              placeholder="Ex: Piler les épices pour le couscous de vendredi..."
+              value={newTaskText}
+              onChange={e => setNewTaskText(e.target.value)}
+              className="flex-1 px-4 py-2.5 rounded-xl border border-stone-300 text-xs outline-none focus:border-amber-500"
+            />
+            <select
+              value={newTaskStation}
+              onChange={e => setNewTaskStation(e.target.value)}
+              className="px-3 py-2 rounded-xl border border-stone-300 text-xs bg-white font-medium"
+            >
+              <option value="Chaud & Tajines">Chaud & Tajines</option>
+              <option value="Froid & Salades">Froid & Salades</option>
+              <option value="Boissons & Pâtisserie">Boissons & Pâtisserie</option>
+              <option value="Achats & Marché">Achats & Marché</option>
+              <option value="Matériel & Service">Matériel & Service</option>
+            </select>
+            <button
+              type="submit"
+              className="bg-amber-600 hover:bg-amber-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition shrink-0"
+            >
+              Ajouter
+            </button>
+          </form>
+
+          {/* Tasks List */}
+          <div className="space-y-2.5">
+            {tasks.map(t => (
+              <div
+                key={t.id}
+                onClick={() => toggleTask(t.id)}
+                className={`p-3.5 rounded-xl border transition flex items-center justify-between cursor-pointer ${
+                  t.done ? 'bg-stone-50 border-stone-200 text-stone-400 line-through' : 'bg-white border-stone-200 hover:border-amber-400 text-charcoal'
+                }`}
+              >
+                <div className="flex items-center space-x-3 rtl:space-x-reverse">
+                  <input
+                    type="checkbox"
+                    checked={t.done}
+                    onChange={() => {}}
+                    className="w-4 h-4 rounded text-amber-600 focus:ring-amber-400"
+                  />
+                  <span className="text-xs font-medium">{t.task}</span>
+                </div>
+                <span className="text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-md">
+                  {t.station}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    // --- TAB: QUOTES CALCULATOR & PAYMENTS ---
+    function AdminQuotesTab({ packages, dishes, showToast }) {
+      const [guestCount, setGuestCount] = useState(80);
+      const [selectedPkgId, setSelectedPkgId] = useState(packages[0]?.id || 'p1');
+      const [includeDrinks, setIncludeDrinks] = useState(true);
+      const [includeDessertBar, setIncludeDessertBar] = useState(false);
+      const [depositPercentage, setDepositPercentage] = useState(30);
+
+      const chosenPkg = packages.find(p => p.id === selectedPkgId) || packages[0];
+      const basePrice = (chosenPkg?.pricePerPerson || 60) * guestCount;
+      const drinksPrice = includeDrinks ? (12 * guestCount) : 0;
+      const dessertPrice = includeDessertBar ? (15 * guestCount) : 0;
+
+      const totalTND = basePrice + drinksPrice + dessertPrice;
+      const depositRequired = Math.round((totalTND * depositPercentage) / 100);
+      const remainingBalance = totalTND - depositRequired;
+
+      const handlePrint = () => {
+        window.print();
+      };
+
+      return (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Controls */}
+          <div className="lg:col-span-6 bg-white rounded-2xl border border-stone-200 p-6 shadow-sm space-y-6">
+            <div>
+              <h2 className="font-serif text-2xl font-bold text-charcoal">Simulateur & Devis Traiteur</h2>
+              <p className="text-xs text-stone-500">Ajustez le nombre de convives et les options pour établir une cotation instantanée</p>
+            </div>
+
+            <div className="space-y-4 text-xs">
+              <div>
+                <label className="block font-bold text-stone-700 uppercase mb-2">Formule de Base</label>
+                <select
+                  value={selectedPkgId}
+                  onChange={e => setSelectedPkgId(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-stone-300 font-semibold bg-white"
+                >
+                  {packages.map(p => (
+                    <option key={p.id} value={p.id}>{p.name} — {p.pricePerPerson} TND / pers.</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-bold text-stone-700 uppercase mb-2">
+                  Nombre de Convives : <span className="text-amber-700 font-bold">{guestCount} personnes</span>
+                </label>
+                <input
+                  type="range"
+                  min="20"
+                  max="400"
+                  step="5"
+                  value={guestCount}
+                  onChange={e => setGuestCount(Number(e.target.value))}
+                  className="w-full accent-amber-600"
+                />
+              </div>
+
+              <div className="space-y-2 pt-2">
+                <label className="flex items-center space-x-2.5 rtl:space-x-reverse cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={includeDrinks}
+                    onChange={e => setIncludeDrinks(e.target.checked)}
+                    className="w-4 h-4 rounded text-amber-600"
+                  />
+                  <span>Option Bar à Thés aux pignons & Citronnades artisanales (+12 TND/pers.)</span>
+                </label>
+                <label className="flex items-center space-x-2.5 rtl:space-x-reverse cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={includeDessertBar}
+                    onChange={e => setIncludeDessertBar(e.target.checked)}
+                    className="w-4 h-4 rounded text-amber-600"
+                  />
+                  <span>Option Fontaine de fruits sculptés & Assida Zgougou (+15 TND/pers.)</span>
+                </label>
+              </div>
+
+              <div className="pt-2">
+                <label className="block font-bold text-stone-700 uppercase mb-2">Pourcentage d’Acompte Exigé : {depositPercentage}%</label>
+                <input
+                  type="range"
+                  min="20"
+                  max="50"
+                  step="5"
+                  value={depositPercentage}
+                  onChange={e => setDepositPercentage(Number(e.target.value))}
+                  className="w-full accent-amber-600"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Printable Quote Sheet Preview */}
+          <div className="lg:col-span-6 bg-amber-50/40 rounded-2xl border-2 border-dashed border-amber-300 p-6 shadow-sm flex flex-col justify-between">
+            <div className="space-y-4">
+              <div className="flex justify-between items-center border-b border-amber-200 pb-3">
+                <div>
+                  <h3 className="font-serif font-black text-xl text-charcoal">DEVIS ESTIMATIF</h3>
+                  <p className="text-[11px] text-stone-500">Dar El Bey Traiteur • Chef Karim Ben Amor</p>
+                </div>
+                <span className="text-xs font-mono font-bold bg-amber-200/80 px-2.5 py-1 rounded">
+                  #DEV-2025-{Math.floor(1000 + guestCount)}
+                </span>
+              </div>
+
+              <div className="space-y-2 text-xs">
+                <div className="flex justify-between py-1">
+                  <span>{chosenPkg.name} ({guestCount} x {chosenPkg.pricePerPerson} TND)</span>
+                  <span className="font-bold">{basePrice.toLocaleString()} TND</span>
+                </div>
+                {includeDrinks && (
+                  <div className="flex justify-between py-1 text-stone-600">
+                    <span>Forfait Boissons & Thés royaux</span>
+                    <span className="font-bold">{drinksPrice.toLocaleString()} TND</span>
+                  </div>
+                )}
+                {includeDessertBar && (
+                  <div className="flex justify-between py-1 text-stone-600">
+                    <span>Cascade de Fruits & Assida Zgougou</span>
+                    <span className="font-bold">{dessertPrice.toLocaleString()} TND</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="border-t border-amber-200 pt-3 space-y-1.5 text-xs">
+                <div className="flex justify-between text-base font-serif font-black text-amber-900">
+                  <span>Total Net Estimé :</span>
+                  <span>{totalTND.toLocaleString()} TND</span>
+                </div>
+                <div className="flex justify-between text-emerald-800 font-bold">
+                  <span>Acompte à la signature ({depositPercentage}%) :</span>
+                  <span>{depositRequired.toLocaleString()} TND</span>
+                </div>
+                <div className="flex justify-between text-stone-500 text-[11px]">
+                  <span>Solde le jour de l’événement :</span>
+                  <span>{remainingBalance.toLocaleString()} TND</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-6 mt-6 border-t border-amber-200 flex gap-3">
+              <button
+                onClick={handlePrint}
+                className="flex-1 bg-charcoal hover:bg-stone-800 text-white font-bold py-3 rounded-xl text-xs flex items-center justify-center space-x-2"
+              >
+                <i data-lucide="printer" className="w-4 h-4"></i>
+                <span>Imprimer / Exporter PDF</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // --- MODAL: NEW / EDIT DISH ---
+    function DishFormModal({ initialData, onClose, onSave }) {
+      const [name, setName] = useState(initialData?.name || '');
+      const [category, setCategory] = useState(initialData?.category || 'Starters');
+      const [price, setPrice] = useState(initialData?.price || 20);
+      const [desc, setDesc] = useState(initialData?.desc || '');
+      const [image, setImage] = useState(initialData?.image || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80');
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        onSave({
+          id: initialData?.id || `d${Date.now()}`,
+          name,
+          category,
+          price: Number(price),
+          desc,
+          available: initialData?.available ?? true,
+          image
+        });
+      };
+
+      return (
+        <div className="fixed inset-0 z-50 bg-charcoal/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-amber-300 space-y-4">
+            <div className="flex justify-between items-center">
+              <h3 className="font-serif font-bold text-xl text-charcoal">
+                {initialData ? 'Modifier le Plat' : 'Ajouter un Plat au Menu'}
+              </h3>
+              <button onClick={onClose}><i data-lucide="x" className="w-5 h-5 text-stone-400"></i></button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-3 text-xs">
+              <div>
+                <label className="block font-bold mb-1">Nom du Plat *</label>
+                <input
+                  type="text"
+                  required
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-stone-300"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold mb-1">Catégorie</label>
+                  <select
+                    value={category}
+                    onChange={e => setCategory(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white"
+                  >
+                    <option value="Starters">Entrées & Salades</option>
+                    <option value="Tajines">Tajines</option>
+                    <option value="Mains">Plats Principaux</option>
+                    <option value="Desserts">Desserts & Pâtisseries</option>
+                    <option value="Drinks">Boissons</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block font-bold mb-1">Prix Indicatif (TND)</label>
+                  <input
+                    type="number"
+                    required
+                    value={price}
+                    onChange={e => setPrice(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-stone-300"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-bold mb-1">URL Photo Illustration</label>
+                <input
+                  type="url"
+                  value={image}
+                  onChange={e => setImage(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-stone-300"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold mb-1">Description & Ingrédients Nobles</label>
+                <textarea
+                  rows="2"
+                  value={desc}
+                  onChange={e => setDesc(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-stone-300"
+                ></textarea>
+              </div>
+
+              <div className="pt-2">
+                <button type="submit" className="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 rounded-xl shadow">
+                  Enregistrer
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      );
+    }
+
+    // --- MODAL: NEW BOOKING MANUAL ---
+    function NewBookingModal({ onClose, onSave }) {
+      const [form, setForm] = useState({
+        clientName: '',
+        phone: '',
+        eventType: 'Mariage',
+        date: '2025-05-15',
+        time: '19:00',
+        location: 'La Marsa',
+        guests: 70,
+        estimatedBudget: 5500,
+        notes: ''
+      });
+
+      return (
+        <div className="fixed inset-0 z-50 bg-charcoal/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-amber-300 space-y-4">
+            <div className="flex justify-between items-center">
+              <h3 className="font-serif font-bold text-xl text-charcoal">Ajouter un Événement au Planning</h3>
+              <button onClick={onClose}><i data-lucide="x" className="w-5 h-5 text-stone-400"></i></button>
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                onSave({
+                  id: `BKG-${Math.floor(100 + Math.random() * 900)}`,
+                  ...form,
+                  status: 'Confirmé',
+                  depositPaid: Math.round(form.estimatedBudget * 0.3),
+                  createdAt: new Date().toISOString().split('T')[0]
+                });
+              }}
+              className="space-y-3 text-xs"
+            >
+              <div>
+                <label className="block font-bold mb-1">Nom du Client *</label>
+                <input
+                  required
+                  value={form.clientName}
+                  onChange={e => setForm({ ...form, clientName: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-stone-300"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold mb-1">Téléphone</label>
+                  <input
+                    value={form.phone}
+                    onChange={e => setForm({ ...form, phone: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-stone-300"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold mb-1">Type d’Événement</label>
+                  <select
+                    value={form.eventType}
+                    onChange={e => setForm({ ...form, eventType: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white"
+                  >
+                    <option value="Mariage">Mariage</option>
+                    <option value="Fiançailles">Fiançailles</option>
+                    <option value="Anniversaire">Anniversaire</option>
+                    <option value="Dîner Privé">Dîner Privé</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold mb-1">Date *</label>
+                  <input
+                    type="date"
+                    required
+                    value={form.date}
+                    onChange={e => setForm({ ...form, date: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-stone-300"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold mb-1">Heure</label>
+                  <input
+                    type="time"
+                    value={form.time}
+                    onChange={e => setForm({ ...form, time: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-stone-300"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold mb-1">Nombre d’Invités</label>
+                  <input
+                    type="number"
+                    value={form.guests}
+                    onChange={e => setForm({ ...form, guests: Number(e.target.value) })}
+                    className="w-full px-3 py-2 rounded-xl border border-stone-300"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold mb-1">Budget Total (TND)</label>
+                  <input
+                    type="number"
+                    value={form.estimatedBudget}
+                    onChange={e => setForm({ ...form, estimatedBudget: Number(e.target.value) })}
+                    className="w-full px-3 py-2 rounded-xl border border-stone-300"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-bold mb-1">Lieu</label>
+                <input
+                  value={form.location}
+                  onChange={e => setForm({ ...form, location: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-stone-300"
+                />
+              </div>
+
+              <div className="pt-2">
+                <button type="submit" className="w-full bg-amber-600 text-white font-bold py-2.5 rounded-xl shadow">
+                  Créer l’Événement
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      );
+    }
+
+    // --- RENDER REACT ROOT ---
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
 </body>
 </html>
-
