@@ -35,6 +35,8 @@ docker-compose up -d --build
 ## 6. Troubleshooting
 
 Document common problems and their solutions.
+### Gits how to run docker compose file and verify if the container running properly [docker command](https://gist.github.com/Dhia-NAfti/0e31e50a254e59effc7d643b17734171)
+
 
 ## 7. Future Improvements
 
